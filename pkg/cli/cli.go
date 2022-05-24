@@ -14,29 +14,29 @@ const defaultEditor = "vi"
 
 func Run(args []string) int {
 	// order of precedence is:
-	// CLI > env vars > config file > defaults
+	// CLI > config file > defaults
 	// we will read this in reverse order and always apply the latter one:
 	// 1. create env with defaults
 	// 2. apply config file
-	// 3. apply env vars
-	// 4. apply CLI args on
+	// 3. apply CLI args on
 
 	// defaults
 	app := gn.GN{
 		NotesPath: defaultDirPath,
 		Editor:    defaultEditor,
+		Project:   "",
+		Branch:    "",
 	}
 
-	// config file
-
-	// env vars
+	// open config file
 
 	// cli
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
-	editCmd.StringVar(&app.Editor, "editor", os.Getenv("EDITOR"), "text editor")
+	editCmd.StringVar(&app.Editor, "editor", app.Editor, "text editor")
+	editCmd.StringVar(&app.Editor, "project", app.Project, "project to edit note")
+	editCmd.StringVar(&app.Editor, "branch", app.Branch, "branch to edit note")
 
 	// initCmd := flag.NewFlagSet("init:", flag.ExitOnError)
-	// TODO add flags to commands
 
 	if len(os.Args) < 2 {
 		fmt.Println("subcommand missing") // TODO print help

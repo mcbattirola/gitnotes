@@ -16,24 +16,17 @@ import (
 type GN struct {
 	Editor    string
 	NotesPath string
+	Project   string
+	Branch    string
 }
 
-// Edit opens the user's current project and branch on
-// the selected editor
+//Edit opens the user's current project and branch on
+//the selected editor. The behaviour of this method depends on the
+//working directory, since it uses the current dir to find the project's name
 func (gn *GN) Edit() error {
-	// TODO check current branch
-	_, err := os.Stat(gn.NotesPath)
-	if os.IsNotExist(err) {
-		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
-		if err != nil {
-			if errors.Is(err, fs.ErrPermission) {
-				fmt.Fprintf(os.Stderr, "No permision to create directory %s", gn.NotesPath)
-			}
-			return err
-		}
-	} else if err != nil {
-		// TODO improve error handling
-		panic(err)
+	// if received project or branch name, use it
+	if gn.Project != "" || gn.Branch != "" {
+		return gn.EditDetatched(gn.Project, gn.Branch)
 	}
 
 	// read current project name and branch
@@ -54,6 +47,27 @@ func (gn *GN) Edit() error {
 	}
 
 	branch := getCurrentBranch(r)
+
+	return gn.EditDetatched(project, branch)
+}
+
+//EditDetatched opens a specific project/branch
+// on the selected editor
+// If project is empty, uses current project
+func (gn *GN) EditDetatched(project string, branch string) error {
+	_, err := os.Stat(gn.NotesPath)
+	if os.IsNotExist(err) {
+		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
+		if err != nil {
+			if errors.Is(err, fs.ErrPermission) {
+				fmt.Fprintf(os.Stderr, "No permision to create directory %s", gn.NotesPath)
+			}
+			return err
+		}
+	} else if err != nil {
+		// TODO improve error handling
+		panic(err)
+	}
 
 	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
 	notePath := fmt.Sprintf("%s/%s", projectPath, branch)
@@ -91,7 +105,7 @@ func (gn *GN) Edit() error {
 }
 
 // getProjectRoot runs git through a syscall to get the top level directory
-// we do it that way because go-git does not implement rev-parse
+// we do it this way because go-git does not implement rev-parse
 func getProjectRoot() (string, error) {
 	path, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
 	if err != nil {
