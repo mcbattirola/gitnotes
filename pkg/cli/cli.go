@@ -33,17 +33,16 @@ func Run(args []string) int {
 	// cli
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
 	editCmd.StringVar(&app.Editor, "editor", app.Editor, "text editor")
-	editCmd.StringVar(&app.Editor, "project", app.Project, "project to edit note")
-	editCmd.StringVar(&app.Editor, "branch", app.Branch, "branch to edit note")
+	editCmd.StringVar(&app.Project, "project", app.Project, "project to edit note")
+	editCmd.StringVar(&app.Branch, "branch", app.Branch, "branch to edit note")
 
-	// initCmd := flag.NewFlagSet("init:", flag.ExitOnError)
+	// initCmd := flag.NewFlagSet("init", flag.ExitOnError)
 
 	if len(os.Args) < 2 {
 		fmt.Println("subcommand missing") // TODO print help
 		return 1
 	}
 
-	// TODO is init necessary? maybe we can just do everything it does on edit
 	switch args[1] {
 	case "init":
 		{
@@ -56,8 +55,12 @@ func Run(args []string) int {
 	case "edit":
 		{
 			editCmd.Parse(args[2:])
-			// TODO check current branch
-			// open file in the path (notesdir(from configfile)/current_repo/current_branch)
+			// todo method to validate inputs?
+			if app.Project != "" && app.Branch == "" {
+				fmt.Printf("--branch is necessary when specifying a different project")
+				return 1
+			}
+
 			err := app.Edit()
 			if err != nil {
 				panic(err)

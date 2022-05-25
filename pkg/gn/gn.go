@@ -25,7 +25,8 @@ type GN struct {
 //working directory, since it uses the current dir to find the project's name
 func (gn *GN) Edit() error {
 	// if received project or branch name, use it
-	if gn.Project != "" || gn.Branch != "" {
+	if gn.Project != "" {
+		fmt.Println("received proj or branch")
 		return gn.EditDetatched(gn.Project, gn.Branch)
 	}
 
@@ -39,6 +40,11 @@ func (gn *GN) Edit() error {
 	dir, err := os.Getwd()
 	if err != nil {
 		panic(err)
+	}
+
+	// if received branch, use it instead of checking the current one
+	if gn.Branch != "" {
+		return gn.EditDetatched(project, gn.Branch)
 	}
 
 	r, err := git.PlainOpen(dir)
