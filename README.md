@@ -14,7 +14,7 @@ gn clone # clones a remote notes repo
 
 ## TODO
 
-- proper flags
+- tests
 - error handling
 - gn init (git init)
 - add a header to each new note (notes on branch xxx)

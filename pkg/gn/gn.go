@@ -26,7 +26,6 @@ type GN struct {
 func (gn *GN) Edit() error {
 	// if received project or branch name, use it
 	if gn.Project != "" {
-		fmt.Println("received proj or branch")
 		return gn.EditDetatched(gn.Project, gn.Branch)
 	}
 
@@ -94,8 +93,6 @@ func (gn *GN) EditDetatched(project string, branch string) error {
 	if editor == "" {
 		editor = "vi"
 	}
-
-	fmt.Println(notePath)
 
 	cmd := exec.Command(editor, notePath)
 	cmd.Stdin = os.Stdin

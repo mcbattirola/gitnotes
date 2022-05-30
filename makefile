@@ -1,5 +1,5 @@
 CONFIG_FILE_PATH=$(HOME)/.config/gitnotes
-CONFIG_FILE=gn.config
+CONFIG_FILE=gn.conf
 
 ./dist/gn:
 	make build
