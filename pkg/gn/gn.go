@@ -32,13 +32,13 @@ func (gn *GN) Edit() error {
 	// read current project name and branch
 	project, err := getProjectRoot()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// get user working repo
 	dir, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	// if received branch, use it instead of checking the current one
@@ -48,10 +48,13 @@ func (gn *GN) Edit() error {
 
 	r, err := git.PlainOpen(dir)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
-	branch := getCurrentBranch(r)
+	branch, err := getCurrentBranch(r)
+	if err != nil {
+		return err
+	}
 
 	return gn.edit(project, branch)
 }
@@ -71,7 +74,7 @@ func (gn *GN) edit(project string, branch string) error {
 		}
 	} else if err != nil {
 		// TODO improve error handling
-		panic(err)
+		return err
 	}
 
 	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
@@ -81,12 +84,13 @@ func (gn *GN) edit(project string, branch string) error {
 	// a branch name may contain slashes. In that case, we want to make the full path
 	// and the slashes in branch name will become directories (which is ok for now)
 	if err := os.MkdirAll(filepath.Dir(notePath), os.ModeDir|0700); err != nil {
-		panic(err)
+		return err
 	}
 
+	// TODO if file doesn't exist, create it with a header
 	_, err = os.OpenFile(notePath, os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	editor := gn.Editor
@@ -101,7 +105,7 @@ func (gn *GN) edit(project string, branch string) error {
 
 	err = cmd.Run()
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	return nil
@@ -119,17 +123,17 @@ func getProjectRoot() (string, error) {
 	return s[len(s)-1], nil
 }
 
-func getCurrentBranch(r *git.Repository) string {
+func getCurrentBranch(r *git.Repository) (string, error) {
 	h, err := r.Reference(plumbing.HEAD, false)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	target := h.Target()
 
 	s := strings.Split(string(target), "refs/heads/")
 	if len(s) < 2 {
-		return ""
+		return "", errors.New("couldn't find project's root")
 	}
-	return s[1]
+	return s[1], nil
 }
