@@ -26,7 +26,7 @@ type GN struct {
 func (gn *GN) Edit() error {
 	// if received project or branch name, use it
 	if gn.Project != "" {
-		return gn.EditDetatched(gn.Project, gn.Branch)
+		return gn.edit(gn.Project, gn.Branch)
 	}
 
 	// read current project name and branch
@@ -43,7 +43,7 @@ func (gn *GN) Edit() error {
 
 	// if received branch, use it instead of checking the current one
 	if gn.Branch != "" {
-		return gn.EditDetatched(project, gn.Branch)
+		return gn.edit(project, gn.Branch)
 	}
 
 	r, err := git.PlainOpen(dir)
@@ -53,13 +53,13 @@ func (gn *GN) Edit() error {
 
 	branch := getCurrentBranch(r)
 
-	return gn.EditDetatched(project, branch)
+	return gn.edit(project, branch)
 }
 
-//EditDetatched opens a specific project/branch
+// edit opens a specific project/branch
 // on the selected editor
 // If project is empty, uses current project
-func (gn *GN) EditDetatched(project string, branch string) error {
+func (gn *GN) edit(project string, branch string) error {
 	_, err := os.Stat(gn.NotesPath)
 	if os.IsNotExist(err) {
 		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)

@@ -13,7 +13,7 @@ import (
 func Run(args []string) int {
 	// order of precedence is: CLI > config file
 	// 1. apply config file
-	// 2. apply CLI args on
+	// 2. apply CLI args on top of it
 
 	app := gn.GN{}
 
@@ -32,10 +32,15 @@ func Run(args []string) int {
 	// gn edit
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
 	editCmd.StringVar(&app.Editor, "editor", app.Editor, "text editor")
-	editCmd.StringVar(&app.Project, "project", app.Project, "project to edit note")
-	editCmd.StringVar(&app.Branch, "branch", app.Branch, "branch to edit note")
+	editCmd.StringVar(&app.Project, "project", app.Project, "project to edit notes")
+	editCmd.StringVar(&app.Branch, "branch", app.Branch, "branch to edit notes")
+	editCmd.Usage = func() {
+		fmt.Println("edits the git note")
+		editCmd.PrintDefaults()
+	}
 
 	// gn init
+	// inits the git repo
 	// initCmd := flag.NewFlagSet("init", flag.ExitOnError)
 
 	if len(os.Args) < 2 {
@@ -56,9 +61,8 @@ func Run(args []string) int {
 	case "edit":
 		{
 			editCmd.Parse(args[2:])
-			// todo method to validate inputs?
 			if app.Project != "" && app.Branch == "" {
-				fmt.Printf("--branch is necessary when specifying a different project")
+				fmt.Printf("--branch is necessary when specifying a project")
 				return 1
 			}
 
