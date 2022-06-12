@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/mcbattirola/gitnotes/pkg/errflags"
 )
 
 type GN struct {
@@ -68,12 +69,11 @@ func (gn *GN) edit(project string, branch string) error {
 		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
 		if err != nil {
 			if errors.Is(err, fs.ErrPermission) {
-				fmt.Fprintf(os.Stderr, "No permision to create directory %s", gn.NotesPath)
+				errflags.Flag(err, errflags.NotAuthorized)
 			}
 			return err
 		}
 	} else if err != nil {
-		// TODO improve error handling
 		return err
 	}
 
@@ -133,7 +133,7 @@ func getCurrentBranch(r *git.Repository) (string, error) {
 
 	s := strings.Split(string(target), "refs/heads/")
 	if len(s) < 2 {
-		return "", errors.New("couldn't find project's root")
+		return "", errflags.New("couldn't find project's root", errflags.BadParameter)
 	}
 	return s[1], nil
 }

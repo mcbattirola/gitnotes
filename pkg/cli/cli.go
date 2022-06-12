@@ -21,11 +21,13 @@ func Run(args []string) int {
 	homeDir, err := os.UserHomeDir()
 	configPath := homeDir + "/.config/gitnotes"
 	if err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "error reading user home dir: %s", err.Error())
+		return 1
 	}
 	configFileName := "gn.conf"
 	if err := config.ReadConfigFile(&app, configPath, configFileName); err != nil {
-		panic(err)
+		fmt.Fprintf(os.Stderr, "error reading config file: %s", err.Error())
+		return 1
 	}
 
 	// read cli params
@@ -35,7 +37,7 @@ func Run(args []string) int {
 	editCmd.StringVar(&app.Project, "project", app.Project, "project to edit notes")
 	editCmd.StringVar(&app.Branch, "branch", app.Branch, "branch to edit notes")
 	editCmd.Usage = func() {
-		fmt.Println("edits the git note")
+		fmt.Println("edit notes")
 		editCmd.PrintDefaults()
 	}
 
@@ -44,7 +46,7 @@ func Run(args []string) int {
 	// initCmd := flag.NewFlagSet("init", flag.ExitOnError)
 
 	if len(os.Args) < 2 {
-		fmt.Println("subcommand missing") // TODO print help
+		fmt.Println("subcommand missing") // TODO print help, print subcommands
 		return 1
 	}
 
@@ -68,8 +70,8 @@ func Run(args []string) int {
 
 			err := app.Edit()
 			if err != nil {
-				fmt.Printf("err on edit: %s \n", err.Error())
-				panic(err)
+				fmt.Fprintf(os.Stderr, "error while editing file: %s", err.Error())
+				return 1
 			}
 		}
 	case "sync":
