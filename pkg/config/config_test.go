@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/mcbattirola/gitnotes/pkg/gn"
+	"github.com/stretchr/testify/assert"
 )
 
 // TODO use some package for testing
@@ -27,13 +28,8 @@ func TestReadConfigFile(t *testing.T) {
 	}
 
 	// expect default values
-	if gn.Editor != "vi" {
-		log.Fatalf("default editor expected to be vi but got '%s'", gn.Editor)
-	}
-	if gn.NotesPath != os.ExpandEnv("$HOME/gitnotes") {
-		log.Fatalf("default notes path should be %s but got %s", "$HOME/gitnotes", gn.NotesPath)
-	}
+	assert.Equal(t, "vi", gn.Editor)
+	assert.Equal(t, os.ExpandEnv("$HOME/gitnotes"), gn.NotesPath)
 
 	// it reads the fields from the config file if it exist
-
 }
