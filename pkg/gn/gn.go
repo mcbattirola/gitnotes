@@ -25,36 +25,35 @@ type GN struct {
 // the selected editor. The behaviour of this method depends on the
 // working directory, since it uses the current dir to find the project's name
 func (gn *GN) Edit() error {
-	// if received project or branch name, use it
-	if gn.Project != "" {
-		return gn.edit(gn.Project, gn.Branch)
+	var err error
+
+	project := gn.Project
+	// if didn't received project name, find it
+	if project == "" {
+		// read current project name and branch
+		project, err = getProjectRoot()
+		if err != nil {
+			return err
+		}
 	}
 
-	// read current project name and branch
-	project, err := getProjectRoot()
-	if err != nil {
-		return err
-	}
+	branch := gn.Branch
+	// if didn't received branch name, use current working branch
+	if branch == "" {
+		// get user working repo
+		dir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		r, err := git.PlainOpen(dir)
+		if err != nil {
+			return err
+		}
 
-	// get user working repo
-	dir, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	// if received branch, use it instead of checking the current one
-	if gn.Branch != "" {
-		return gn.edit(project, gn.Branch)
-	}
-
-	r, err := git.PlainOpen(dir)
-	if err != nil {
-		return err
-	}
-
-	branch, err := getCurrentBranch(r)
-	if err != nil {
-		return err
+		branch, err = getCurrentBranch(r)
+		if err != nil {
+			return err
+		}
 	}
 
 	return gn.edit(project, branch)

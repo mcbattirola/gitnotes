@@ -1,13 +1,13 @@
 CONFIG_FILE_PATH=$(HOME)/.config/gitnotes
 CONFIG_FILE=gn.conf
 
-./dist/gn:
-	make build
+all: build
 
 .PHONY: build
 build:
 	go build -o ./dist/gn main.go
 
+# compile and run edit command
 run:
 	go run main.go edit
 
