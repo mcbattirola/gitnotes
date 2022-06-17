@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/mcbattirola/gitnotes/pkg/config"
+	"github.com/mcbattirola/gitnotes/pkg/errflags"
 	"github.com/mcbattirola/gitnotes/pkg/gn"
 )
 
@@ -63,8 +64,8 @@ func Run(args []string) int {
 	case "edit":
 		{
 			editCmd.Parse(args[2:])
-			if app.Project != "" && app.Branch == "" {
-				fmt.Printf("--branch is necessary when specifying a project")
+			if err := checkInitParams(app); err != nil {
+				fmt.Fprintf(os.Stderr, "error validating parameters: %s", err.Error())
 				return 1
 			}
 
@@ -85,4 +86,12 @@ func Run(args []string) int {
 	}
 
 	return 0
+}
+
+func checkInitParams(app gn.GN) error {
+	if app.Project != "" && app.Branch == "" {
+		return errflags.New("branch is necessary when specifying a project", errflags.BadParameter)
+	}
+
+	return nil
 }
