@@ -24,6 +24,7 @@ gn path # (not implemented) prints notes path into stdout
 - consider replacing git lib for git syscalls
 - implement missing commands
 - make a real README
+- setup ci pipeline
 
 ### Config fields
 
