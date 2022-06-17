@@ -1,25 +1,25 @@
 CONFIG_FILE_PATH=$(HOME)/.config/gitnotes
-CONFIG_FILE=gn.config
+CONFIG_FILE=gn.conf
 
-./dist/gn:
-	make build
+all: build
 
 .PHONY: build
 build:
 	go build -o ./dist/gn main.go
 
+# compile and run edit command
 run:
 	go run main.go edit
 
 test:
 	go test ./...
 
-# TODO make a default config file and copy it to .config
+# install gitnotes into /usr/local/bin
+# needs sudo
 .PHONY: install
 install: ./dist/gn
 	sudo cp ./dist/gn /usr/local/bin/gn
 	mkdir -p $(CONFIG_FILE_PATH)
-	touch $(CONFIG_FILE_PATH)/$(CONFIG_FILE)
 
 .PHONY: lint
 ling:
