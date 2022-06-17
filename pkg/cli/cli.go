@@ -6,40 +6,48 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/mcbattirola/gitnotes/pkg/config"
+	"github.com/mcbattirola/gitnotes/pkg/errflags"
 	"github.com/mcbattirola/gitnotes/pkg/gn"
 )
 
-const defaultDirPath = "/home/matheus/Documents/projects/gitnotes" // TODO read this from config file
-const defaultEditor = "vi"
-
 func Run(args []string) int {
-	// order of precedence is:
-	// CLI > config file > defaults
-	// we will read this in reverse order and always apply the latter one:
-	// 1. create env with defaults
-	// 2. apply config file
-	// 3. apply CLI args on
+	// order of precedence is: CLI > config file
+	// 1. apply config file
+	// 2. apply CLI args on top of it
 
-	// defaults
-	app := gn.GN{
-		NotesPath: defaultDirPath,
-		Editor:    defaultEditor,
-		Project:   "",
-		Branch:    "",
-	}
+	app := gn.GN{}
 
 	// open config file
+	homeDir, err := os.UserHomeDir()
+	configPath := homeDir + "/.config/gitnotes"
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error reading user home dir: %s", err.Error())
+		return 1
+	}
+	configFileName := "gn.conf"
+	if err := config.ReadConfigFile(&app, configPath, configFileName); err != nil {
+		fmt.Fprintf(os.Stderr, "error reading config file: %s", err.Error())
+		return 1
+	}
 
-	// cli
+	// read cli params
+	// gn edit
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
 	editCmd.StringVar(&app.Editor, "editor", app.Editor, "text editor")
-	editCmd.StringVar(&app.Project, "project", app.Project, "project to edit note")
-	editCmd.StringVar(&app.Branch, "branch", app.Branch, "branch to edit note")
+	editCmd.StringVar(&app.Project, "project", app.Project, "project to edit notes")
+	editCmd.StringVar(&app.Branch, "branch", app.Branch, "branch to edit notes")
+	editCmd.Usage = func() {
+		fmt.Println("edit notes")
+		editCmd.PrintDefaults()
+	}
 
+	// gn init
+	// inits the git repo
 	// initCmd := flag.NewFlagSet("init", flag.ExitOnError)
 
 	if len(os.Args) < 2 {
-		fmt.Println("subcommand missing") // TODO print help
+		fmt.Println("subcommand missing") // TODO print help, print subcommands
 		return 1
 	}
 
@@ -49,21 +57,22 @@ func Run(args []string) int {
 			// check if local repo exists (in config file or default path)
 			//  create it if dont exist
 			// create a dir to the current project on the notes repo if it doesnt exist (warn if it does)
+			// dir default name should be gitnotes, should accept CLI arg
 			fmt.Println("init not implemented")
 			return 1
 		}
 	case "edit":
 		{
 			editCmd.Parse(args[2:])
-			// todo method to validate inputs?
-			if app.Project != "" && app.Branch == "" {
-				fmt.Printf("--branch is necessary when specifying a different project")
+			if err := checkInitParams(app); err != nil {
+				fmt.Fprintf(os.Stderr, "error validating parameters: %s", err.Error())
 				return 1
 			}
 
 			err := app.Edit()
 			if err != nil {
-				panic(err)
+				fmt.Fprintf(os.Stderr, "error while editing file: %s", err.Error())
+				return 1
 			}
 		}
 	case "sync":
@@ -77,4 +86,12 @@ func Run(args []string) int {
 	}
 
 	return 0
+}
+
+func checkInitParams(app gn.GN) error {
+	if app.Project != "" && app.Branch == "" {
+		return errflags.New("branch is necessary when specifying a project", errflags.BadParameter)
+	}
+
+	return nil
 }

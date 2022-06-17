@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/mcbattirola/gitnotes/pkg/errflags"
 )
 
 type GN struct {
@@ -20,59 +21,59 @@ type GN struct {
 	Branch    string
 }
 
-//Edit opens the user's current project and branch on
-//the selected editor. The behaviour of this method depends on the
-//working directory, since it uses the current dir to find the project's name
+// Edit opens the user's current project and branch on
+// the selected editor. The behaviour of this method depends on the
+// working directory, since it uses the current dir to find the project's name
 func (gn *GN) Edit() error {
-	// if received project or branch name, use it
-	if gn.Project != "" {
-		fmt.Println("received proj or branch")
-		return gn.EditDetatched(gn.Project, gn.Branch)
+	var err error
+
+	project := gn.Project
+	// if didn't received project name, find it
+	if project == "" {
+		// read current project name and branch
+		project, err = getProjectRoot()
+		if err != nil {
+			return err
+		}
 	}
 
-	// read current project name and branch
-	project, err := getProjectRoot()
-	if err != nil {
-		panic(err)
+	branch := gn.Branch
+	// if didn't received branch name, use current working branch
+	if branch == "" {
+		// get user working repo
+		dir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		r, err := git.PlainOpen(dir)
+		if err != nil {
+			return err
+		}
+
+		branch, err = getCurrentBranch(r)
+		if err != nil {
+			return err
+		}
 	}
 
-	// get user working repo
-	dir, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
-	// if received branch, use it instead of checking the current one
-	if gn.Branch != "" {
-		return gn.EditDetatched(project, gn.Branch)
-	}
-
-	r, err := git.PlainOpen(dir)
-	if err != nil {
-		panic(err)
-	}
-
-	branch := getCurrentBranch(r)
-
-	return gn.EditDetatched(project, branch)
+	return gn.edit(project, branch)
 }
 
-//EditDetatched opens a specific project/branch
+// edit opens a specific project/branch
 // on the selected editor
 // If project is empty, uses current project
-func (gn *GN) EditDetatched(project string, branch string) error {
+func (gn *GN) edit(project string, branch string) error {
 	_, err := os.Stat(gn.NotesPath)
 	if os.IsNotExist(err) {
 		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
 		if err != nil {
 			if errors.Is(err, fs.ErrPermission) {
-				fmt.Fprintf(os.Stderr, "No permision to create directory %s", gn.NotesPath)
+				errflags.Flag(err, errflags.NotAuthorized)
 			}
 			return err
 		}
 	} else if err != nil {
-		// TODO improve error handling
-		panic(err)
+		return err
 	}
 
 	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
@@ -82,20 +83,19 @@ func (gn *GN) EditDetatched(project string, branch string) error {
 	// a branch name may contain slashes. In that case, we want to make the full path
 	// and the slashes in branch name will become directories (which is ok for now)
 	if err := os.MkdirAll(filepath.Dir(notePath), os.ModeDir|0700); err != nil {
-		panic(err)
+		return err
 	}
 
+	// TODO if file doesn't exist, create it with a header
 	_, err = os.OpenFile(notePath, os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	editor := gn.Editor
 	if editor == "" {
 		editor = "vi"
 	}
-
-	fmt.Println(notePath)
 
 	cmd := exec.Command(editor, notePath)
 	cmd.Stdin = os.Stdin
@@ -104,7 +104,7 @@ func (gn *GN) EditDetatched(project string, branch string) error {
 
 	err = cmd.Run()
 	if err != nil {
-		panic(err.Error())
+		return err
 	}
 
 	return nil
@@ -122,17 +122,17 @@ func getProjectRoot() (string, error) {
 	return s[len(s)-1], nil
 }
 
-func getCurrentBranch(r *git.Repository) string {
+func getCurrentBranch(r *git.Repository) (string, error) {
 	h, err := r.Reference(plumbing.HEAD, false)
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	target := h.Target()
 
 	s := strings.Split(string(target), "refs/heads/")
 	if len(s) < 2 {
-		return ""
+		return "", errflags.New("couldn't find project branch", errflags.BadParameter)
 	}
-	return s[1]
+	return s[1], nil
 }

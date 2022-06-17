@@ -1,23 +1,35 @@
 # gitnotes
 
+Commands:
+
 ```bash
-gn init # initializes gitnote in the current dir
 gn edit # edit current branch notes; alternativaly accepts a branch name
-gn sync # commits local notes to remote
-gn clone # clones a remote notes repo
+gn init # (not implemented) initializes gitnote in the current dir
+gn commit # (not implemented) commits notes to remote
+gn push # (not implemented) push notes to remote
+gn pull # (not implemented) pull notes from remote
+gn sync # (not implemented) pull and push
+gn path # (not implemented) prints notes path into stdout
 ```
 
-- .config file to configurations later
+- `.config` file to configurations later
 - works locally, can be synced
 
 ---
 
 ## TODO
 
-- proper flags
-- error handling
-- gn init (git init)
 - add a header to each new note (notes on branch xxx)
 - handle actual versioning of the notes repository
+- consider replacing git lib for git syscalls
 - implement missing commands
 - make a real README
+
+### Config fields
+
+Config fields pending implementation:
+
+- always-commit=true/false
+- always-push=true/false
+- header=true/false
+- header-template=path to header template file
