@@ -19,3 +19,5 @@ gn clone # clones a remote notes repo
 - gn init (git init)
 - add a header to each new note (notes on branch xxx)
 - handle actual versioning of the notes repository
+- implement missing commands
+- make a real README
