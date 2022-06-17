@@ -30,6 +30,4 @@ func TestReadConfigFile(t *testing.T) {
 	// expect default values
 	assert.Equal(t, "vi", gn.Editor)
 	assert.Equal(t, os.ExpandEnv("$HOME/gitnotes"), gn.NotesPath)
-
-	// it reads the fields from the config file if it exist
 }

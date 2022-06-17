@@ -21,9 +21,9 @@ type GN struct {
 	Branch    string
 }
 
-//Edit opens the user's current project and branch on
-//the selected editor. The behaviour of this method depends on the
-//working directory, since it uses the current dir to find the project's name
+// Edit opens the user's current project and branch on
+// the selected editor. The behaviour of this method depends on the
+// working directory, since it uses the current dir to find the project's name
 func (gn *GN) Edit() error {
 	// if received project or branch name, use it
 	if gn.Project != "" {
@@ -133,7 +133,7 @@ func getCurrentBranch(r *git.Repository) (string, error) {
 
 	s := strings.Split(string(target), "refs/heads/")
 	if len(s) < 2 {
-		return "", errflags.New("couldn't find project's root", errflags.BadParameter)
+		return "", errflags.New("couldn't find project branch", errflags.BadParameter)
 	}
 	return s[1], nil
 }
