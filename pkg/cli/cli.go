@@ -12,11 +12,11 @@ import (
 )
 
 func Run(args []string) int {
+	app := gn.GN{}
+
 	// order of precedence is: CLI > config file
 	// 1. apply config file
 	// 2. apply CLI args on top of it
-
-	app := gn.GN{}
 
 	// open config file
 	homeDir, err := os.UserHomeDir()
@@ -46,6 +46,8 @@ func Run(args []string) int {
 	// inits the git repo
 	// initCmd := flag.NewFlagSet("init", flag.ExitOnError)
 
+	// gn path
+	// prints the notes path into stdout
 	pathCmd := flag.NewFlagSet("path", flag.ExitOnError)
 	pathCmd.Usage = func() {
 		fmt.Println("prints the notes path to stdout")
@@ -91,6 +93,10 @@ func Run(args []string) int {
 	case pathCmd.Name():
 		{
 			fmt.Println(app.Path())
+		}
+	default:
+		{
+			fmt.Fprintf(os.Stderr, "command %s not found.\n", args[1])
 		}
 	}
 

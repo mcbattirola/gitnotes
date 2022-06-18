@@ -9,7 +9,7 @@ gn commit # (not implemented) commits notes to remote
 gn push # (not implemented) push notes to remote
 gn pull # (not implemented) pull notes from remote
 gn sync # (not implemented) pull and push
-gn path # (not implemented) prints notes path into stdout
+gn path # prints notes path into stdout
 ```
 
 - `.config` file to configurations later
