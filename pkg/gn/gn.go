@@ -31,6 +31,11 @@ type GN struct {
 func (gn *GN) Edit() error {
 	var err error
 
+	// run `git init` into notes path
+	// we can still procceed if it errors
+	// TODO log this error if in debug/verbose mode
+	gn.init()
+
 	project := gn.Project
 	// if didn't received project name, find it
 	if project == "" {
@@ -139,6 +144,17 @@ func getCurrentBranch(r *git.Repository) (string, error) {
 		return "", errflags.New("couldn't find project branch", errflags.BadParameter)
 	}
 	return s[1], nil
+}
+
+// init initializes a git repo into the notes path.
+// Running git init in an existing repository is safe. It will not overwrite things that are already there
+func (gn *GN) init() error {
+	_, err := exec.Command("git", "init", "--quiet", gn.NotesPath).Output()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // Path returns the path in which the notes are stored

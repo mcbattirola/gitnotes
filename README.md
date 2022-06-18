@@ -4,7 +4,6 @@ Commands:
 
 ```bash
 gn edit # edit current branch notes; alternativaly accepts a branch name
-gn init # (not implemented) initializes gitnote in the current dir
 gn commit # (not implemented) commits notes to remote
 gn push # (not implemented) push notes to remote
 gn pull # (not implemented) pull notes from remote
