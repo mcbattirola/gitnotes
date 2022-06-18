@@ -30,17 +30,3 @@ func TestGetProjectRoot(t *testing.T) {
 	assert.Nil(t, err)
 	assert.Equal(t, rootName, r)
 }
-
-func testGetCurrentBranch(t *testing.T) {
-	// create temp dir and branch
-	// projName := t.TempDir()
-	// git init into it
-	// create branch
-
-	// get current branch
-	// expect it to be right
-
-	// change branch and see if it changes too
-
-	// test that it returns an error if run in not a git dir
-}
