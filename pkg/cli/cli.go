@@ -46,6 +46,11 @@ func Run(args []string) int {
 	// inits the git repo
 	// initCmd := flag.NewFlagSet("init", flag.ExitOnError)
 
+	pathCmd := flag.NewFlagSet("path", flag.ExitOnError)
+	pathCmd.Usage = func() {
+		fmt.Println("prints the notes path to stdout")
+	}
+
 	if len(os.Args) < 2 {
 		fmt.Println("subcommand missing") // TODO print help, print subcommands
 		return 1
@@ -61,7 +66,7 @@ func Run(args []string) int {
 			fmt.Println("init not implemented")
 			return 1
 		}
-	case "edit":
+	case editCmd.Name():
 		{
 			editCmd.Parse(args[2:])
 			if err := checkInitParams(app); err != nil {
@@ -82,6 +87,10 @@ func Run(args []string) int {
 			//  else, create it (will ask gh credentials or key or w/e)
 			fmt.Println("sync not implemented")
 			return 1
+		}
+	case pathCmd.Name():
+		{
+			fmt.Println(app.Path())
 		}
 	}
 

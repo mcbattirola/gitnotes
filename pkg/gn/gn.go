@@ -15,10 +15,14 @@ import (
 )
 
 type GN struct {
-	Editor    string
+	// Editor is the name of the binary of the text editor
+	Editor string
+	// NotesPath is the path in which the notes are stored
 	NotesPath string
-	Project   string
-	Branch    string
+	// Project is the name of the project for the notes
+	Project string
+	// Branch is the name of the branch for the notes
+	Branch string
 }
 
 // Edit opens the user's current project and branch on
@@ -135,4 +139,9 @@ func getCurrentBranch(r *git.Repository) (string, error) {
 		return "", errflags.New("couldn't find project branch", errflags.BadParameter)
 	}
 	return s[1], nil
+}
+
+// Path returns the path in which the notes are stored
+func (gn *GN) Path() string {
+	return gn.NotesPath
 }
