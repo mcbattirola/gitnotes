@@ -34,9 +34,9 @@ func Run(args []string) int {
 	// read cli params
 	// gn edit
 	editCmd := flag.NewFlagSet("edit", flag.ExitOnError)
-	editCmd.StringVar(&app.Editor, "editor", app.Editor, "text editor")
-	editCmd.StringVar(&app.Project, "project", app.Project, "project to edit notes")
-	editCmd.StringVar(&app.Branch, "branch", app.Branch, "branch to edit notes")
+	editCmd.StringVar(&app.Editor, "e", app.Editor, "text editor")
+	editCmd.StringVar(&app.Project, "p", app.Project, "project to edit notes")
+	editCmd.StringVar(&app.Branch, "b", app.Branch, "branch to edit notes")
 	editCmd.Usage = func() {
 		fmt.Println("edit notes")
 		editCmd.PrintDefaults()
