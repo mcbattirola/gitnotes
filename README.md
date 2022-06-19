@@ -18,8 +18,8 @@ gn path # prints notes path into stdout
 
 ## TODO
 
+- add log and log level
 - add a header to each new note (notes on branch xxx)
-- handle actual versioning of the notes repository
 - consider replacing git lib for git syscalls
 - implement missing commands
 - make a real README

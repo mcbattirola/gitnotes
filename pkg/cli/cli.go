@@ -2,6 +2,7 @@
 package cli
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"os"
@@ -22,12 +23,12 @@ func Run(args []string) int {
 	homeDir, err := os.UserHomeDir()
 	configPath := homeDir + "/.config/gitnotes"
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error reading user home dir: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "error reading user home dir: %s\n", err.Error())
 		return 1
 	}
 	configFileName := "gn.conf"
 	if err := config.ReadConfigFile(&app, configPath, configFileName); err != nil {
-		fmt.Fprintf(os.Stderr, "error reading config file: %s", err.Error())
+		fmt.Fprintf(os.Stderr, "error reading config file: %s\n", err.Error())
 		return 1
 	}
 
@@ -45,6 +46,10 @@ func Run(args []string) int {
 	// gn init
 	// inits the git repo
 	// initCmd := flag.NewFlagSet("init", flag.ExitOnError)
+
+	// gn push
+	// pushes notes changes to origin
+	pushCmd := flag.NewFlagSet("push", flag.ExitOnError)
 
 	// gn path
 	// prints the notes path into stdout
@@ -72,13 +77,12 @@ func Run(args []string) int {
 		{
 			editCmd.Parse(args[2:])
 			if err := checkInitParams(app); err != nil {
-				fmt.Fprintf(os.Stderr, "error validating parameters: %s", err.Error())
+				fmt.Fprintf(os.Stderr, "error validating parameters: %s\n", err.Error())
 				return 1
 			}
 
-			err := app.Edit()
-			if err != nil {
-				fmt.Fprintf(os.Stderr, "error while editing file: %s", err.Error())
+			if err := app.Edit(); err != nil {
+				fmt.Fprintf(os.Stderr, "error while editing file: %s\n", err.Error())
 				return 1
 			}
 		}
@@ -89,6 +93,32 @@ func Run(args []string) int {
 			//  else, create it (will ask gh credentials or key or w/e)
 			fmt.Println("sync not implemented")
 			return 1
+		}
+	case pushCmd.Name():
+		{
+			pushCmd.Parse(args[2:])
+			if err := app.Push(); err != nil {
+				// if remote was not found, prompt user to add a remote
+				if errflags.HasFlag(err, errflags.NoRemote) {
+					fmt.Printf("Remote not found. Enter remote URL: ")
+					reader := bufio.NewReader(os.Stdin)
+					url, _ := reader.ReadString('\n')
+
+					// add remote origin and push again
+					if err := app.AddOrigin(url); err != nil {
+						fmt.Fprintf(os.Stderr, "error adding origin: %s\n", err.Error())
+						return 1
+					}
+					if err := app.Push(); err != nil {
+						fmt.Fprintf(os.Stderr, "error pushing notes: %s. Make sure the repository exists at %s", err.Error(), url)
+						return 1
+					}
+					return 0
+				}
+
+				fmt.Fprintf(os.Stderr, "error pushing notes: %s\n", err.Error())
+				return 1
+			}
 		}
 	case pathCmd.Name():
 		{

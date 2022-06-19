@@ -22,5 +22,9 @@ install: ./dist/gn
 	mkdir -p $(CONFIG_FILE_PATH)
 
 .PHONY: lint
-ling:
+lint:
 	golangci-lint run . --enable-all
+
+.PHONY: clean
+clean:
+	rm ./dist/gn

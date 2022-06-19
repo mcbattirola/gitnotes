@@ -9,6 +9,7 @@ const (
 	NotFound = iota
 	NotAuthorized
 	BadParameter
+	NoRemote
 )
 
 // New creates a new error with a flag
