@@ -65,7 +65,7 @@ func Run(args []string) int {
 	commitCmd := flag.NewFlagSet("commit", flag.ExitOnError)
 	commitCmd.StringVar(&app.CommitMessage, "message", app.CommitMessage, "commit message, in quotes")
 	commitCmd.Usage = func() {
-		fmt.Println("Commits notes changes. Example: gn commit --message \"Update notes\"\n")
+		fmt.Println("Commits notes changes. Example: gn commit --message \"Update notes\"")
 		commitCmd.PrintDefaults()
 	}
 

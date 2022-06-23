@@ -49,6 +49,11 @@ func ReadConfigFile(gn *gn.GN, path string, fileName string) error {
 			gn.Editor = s[1]
 		case "notes":
 			gn.NotesPath = os.ExpandEnv(s[1])
+		case "always-commit":
+			if s[1] == "true" {
+				gn.AlwaysCommit = true
+			}
+
 		}
 	}
 	if err := scanner.Err(); err != nil {

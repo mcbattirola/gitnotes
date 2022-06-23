@@ -26,7 +26,9 @@ type GN struct {
 	Branch string
 	// commit message is the message to be used on commit
 	CommitMessage string
-	author        Author
+	// AlwaysCommit indicates if all note edit should be commited
+	AlwaysCommit bool
+	author       Author
 }
 
 // New creates a new GN
@@ -34,7 +36,7 @@ type GN struct {
 func New() *GN {
 	a, err := readGlobalGitAuthor()
 	if err != nil {
-		// it is to ignore this error
+		// it is ok to ignore this error
 		// the commit will have an empty signature but should work
 		// TODO log error
 	}
@@ -48,6 +50,10 @@ func New() *GN {
 // working directory, since it uses the current dir to find the project's name
 func (gn *GN) Edit() error {
 	var err error
+
+	if gn.AlwaysCommit {
+		defer gn.Commit()
+	}
 
 	// run `git init` into notes path
 	// we can still procceed if it errors
