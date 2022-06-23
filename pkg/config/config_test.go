@@ -10,8 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO use some package for testing
-
 func TestReadConfigFile(t *testing.T) {
 	// it creates a config file if it doesn't exist
 	gn := gn.GN{}

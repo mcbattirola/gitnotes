@@ -19,11 +19,11 @@ gn path # prints notes path into stdout
 ## TODO
 
 - add log and log level
-- add a header to each new note (notes on branch xxx)
 - consider replacing git lib for git syscalls
 - implement missing commands
-- make a real README
 - setup ci pipeline
+- make a real README
+- add a header to each new note (notes on branch xxx)
 
 ### Config fields
 

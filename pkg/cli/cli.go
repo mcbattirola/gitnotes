@@ -50,12 +50,23 @@ func Run(args []string) int {
 	// gn push
 	// pushes notes changes to origin
 	pushCmd := flag.NewFlagSet("push", flag.ExitOnError)
+	pushCmd.Usage = func() {
+		fmt.Println("Push notes changes to remote. Commits any uncommited change.")
+	}
 
 	// gn path
 	// prints the notes path into stdout
 	pathCmd := flag.NewFlagSet("path", flag.ExitOnError)
 	pathCmd.Usage = func() {
-		fmt.Println("prints the notes path to stdout")
+		fmt.Println("Prints the notes paths to stdout.")
+	}
+
+	// gn commit
+	commitCmd := flag.NewFlagSet("commit", flag.ExitOnError)
+	commitCmd.StringVar(&app.CommitMessage, "message", app.CommitMessage, "commit message, in quotes")
+	commitCmd.Usage = func() {
+		fmt.Println("Commits notes changes. Example: gn commit --message \"Update notes\"\n")
+		commitCmd.PrintDefaults()
 	}
 
 	if len(os.Args) < 2 {
@@ -123,6 +134,17 @@ func Run(args []string) int {
 	case pathCmd.Name():
 		{
 			fmt.Println(app.Path())
+		}
+	case commitCmd.Name():
+		{
+			if err := commitCmd.Parse(args[2:]); err != nil {
+				fmt.Fprintf(os.Stderr, "error parsing commit command arguments: %s", err.Error())
+				return 1
+			}
+			if err := app.Commit(); err != nil {
+				fmt.Fprintf(os.Stderr, "error while commiting notes: %s\n", err.Error())
+				return 1
+			}
 		}
 	default:
 		{

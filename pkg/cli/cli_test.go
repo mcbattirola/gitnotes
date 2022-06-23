@@ -13,7 +13,7 @@ func TestCheckInitParams(t *testing.T) {
 		app       gn.GN
 		expectErr bool
 	}{
-		{name: "it accepts np params", expectErr: false},
+		{name: "it accepts no params", expectErr: false},
 		{
 			name: "it accepts no project and different branch",
 			app: gn.GN{
@@ -39,7 +39,7 @@ func TestCheckInitParams(t *testing.T) {
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			err := checkInitParams(tc.app)
+			err := checkInitParams(&tc.app)
 			if tc.expectErr {
 				assert.NotNil(t, err)
 			} else {

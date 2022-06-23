@@ -14,6 +14,9 @@ run:
 test:
 	go test ./...
 
+fmt:
+	go fmt ./...
+
 # install gitnotes into /usr/local/bin
 # needs sudo
 .PHONY: install
@@ -28,3 +31,6 @@ lint:
 .PHONY: clean
 clean:
 	rm ./dist/gn
+
+./dist/gn:
+	make build

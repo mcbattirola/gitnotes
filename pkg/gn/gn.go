@@ -24,7 +24,9 @@ type GN struct {
 	Project string
 	// Branch is the name of the branch for the notes
 	Branch string
-	author Author
+	// commit message is the message to be used on commit
+	CommitMessage string
+	author        Author
 }
 
 // New creates a new GN
@@ -171,12 +173,10 @@ func (gn *GN) Push() error {
 		return err
 	}
 
-	_, err = w.Commit(fmt.Sprintf("Update notes - %s", time.Now().Local().String()), &git.CommitOptions{
-		Author: &object.Signature{
-			When:  time.Now(),
-			Name:  gn.author.Name,
-			Email: gn.author.Email},
-	})
+	if gn.CommitMessage == "" {
+		gn.CommitMessage = fmt.Sprintf("Update notes - %s", time.Now().Local().String())
+	}
+	err = gn.commit(gn.CommitMessage, w)
 	if err != nil {
 		return err
 	}
@@ -211,6 +211,38 @@ func (gn *GN) Push() error {
 	// 	}
 	// 	return err
 	// }
+
+	return nil
+}
+
+func (gn *GN) Commit() error {
+	r, err := git.PlainOpen(gn.NotesPath)
+	if err != nil {
+		return err
+	}
+
+	w, err := r.Worktree()
+	if err != nil {
+		return err
+	}
+
+	if gn.CommitMessage == "" {
+		gn.CommitMessage = fmt.Sprintf("Update notes - %s", time.Now().Local().String())
+	}
+
+	return gn.commit(gn.CommitMessage, w)
+}
+
+func (gn *GN) commit(msg string, w *git.Worktree) error {
+	_, err := w.Commit(fmt.Sprintf(msg), &git.CommitOptions{
+		Author: &object.Signature{
+			When:  time.Now(),
+			Name:  gn.author.Name,
+			Email: gn.author.Email},
+	})
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
