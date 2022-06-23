@@ -14,6 +14,9 @@ run:
 test:
 	go test ./...
 
+fmt:
+	go fmt ./...
+
 # install gitnotes into /usr/local/bin
 # needs sudo
 .PHONY: install
@@ -22,5 +25,12 @@ install: ./dist/gn
 	mkdir -p $(CONFIG_FILE_PATH)
 
 .PHONY: lint
-ling:
+lint:
 	golangci-lint run . --enable-all
+
+.PHONY: clean
+clean:
+	rm ./dist/gn
+
+./dist/gn:
+	make build

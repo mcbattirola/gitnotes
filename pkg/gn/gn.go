@@ -7,10 +7,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
+	"time"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/mcbattirola/gitnotes/pkg/errflags"
 )
 
@@ -23,6 +24,25 @@ type GN struct {
 	Project string
 	// Branch is the name of the branch for the notes
 	Branch string
+	// commit message is the message to be used on commit
+	CommitMessage string
+	// AlwaysCommit indicates if all note edit should be commited
+	AlwaysCommit bool
+	author       Author
+}
+
+// New creates a new GN
+// with required internal fields set
+func New() *GN {
+	a, err := readGlobalGitAuthor()
+	if err != nil {
+		// it is ok to ignore this error
+		// the commit will have an empty signature but should work
+		// TODO log error
+	}
+	return &GN{
+		author: a,
+	}
 }
 
 // Edit opens the user's current project and branch on
@@ -30,6 +50,10 @@ type GN struct {
 // working directory, since it uses the current dir to find the project's name
 func (gn *GN) Edit() error {
 	var err error
+
+	if gn.AlwaysCommit {
+		defer gn.Commit()
+	}
 
 	// run `git init` into notes path
 	// we can still procceed if it errors
@@ -119,33 +143,6 @@ func (gn *GN) edit(project string, branch string) error {
 	return nil
 }
 
-// getProjectRoot runs git through a syscall to get the top level directory
-// we do it this way because go-git does not implement rev-parse
-func getProjectRoot() (string, error) {
-	path, err := exec.Command("git", "rev-parse", "--show-toplevel").Output()
-	if err != nil {
-		return "", err
-	}
-
-	s := strings.Split(strings.TrimSpace(string(path)), "/")
-	return s[len(s)-1], nil
-}
-
-func getCurrentBranch(r *git.Repository) (string, error) {
-	h, err := r.Reference(plumbing.HEAD, false)
-	if err != nil {
-		return "", err
-	}
-
-	target := h.Target()
-
-	s := strings.Split(string(target), "refs/heads/")
-	if len(s) < 2 {
-		return "", errflags.New("couldn't find project branch", errflags.BadParameter)
-	}
-	return s[1], nil
-}
-
 // init initializes a git repo into the notes path.
 // Running git init in an existing repository is safe. It will not overwrite things that are already there
 func (gn *GN) init() error {
@@ -155,6 +152,119 @@ func (gn *GN) init() error {
 	}
 
 	return nil
+}
+
+// Push pushes git notes to the remote repository
+func (gn *GN) Push() error {
+	// run `git init` into notes path
+	// we can still procceed if it errors
+	// TODO log this error if in debug/verbose mode
+	gn.init()
+
+	r, err := git.PlainOpen(gn.NotesPath)
+	if err != nil {
+		return err
+	}
+
+	// create an upstream branch if it doesn't exist
+
+	// run `git add .`
+	w, err := r.Worktree()
+	if err != nil {
+		return err
+	}
+
+	_, err = w.Add(".")
+	if err != nil {
+		return err
+	}
+
+	if gn.CommitMessage == "" {
+		gn.CommitMessage = fmt.Sprintf("Update notes - %s", time.Now().Local().String())
+	}
+	err = gn.commit(gn.CommitMessage, w)
+	if err != nil {
+		return err
+	}
+
+	if _, err := r.Remote("origin"); err != nil {
+		if err == git.ErrRemoteNotFound {
+			return errflags.Flag(err, errflags.NoRemote)
+		}
+		return err
+	}
+
+	// push
+	// TODO make branch name variable / read it from configs
+	cmd := exec.Command("git", "-C", gn.NotesPath, "push", "--set-upstream", "origin", "master")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err = cmd.Run()
+	if err != nil {
+		fmt.Printf("push failed: %s\n", err.Error())
+		return err
+	}
+	// err = r.Push(&git.PushOptions{
+	// 	Auth: &http.BasicAuth{
+	// 		Username: "username",
+	// 		Password: "password",
+	// 	},
+	// })
+	// if err != nil && err != git.NoErrAlreadyUpToDate {
+	// 	if err == git.ErrRemoteNotFound {
+	// 		return errflags.Flag(err, errflags.NoRemote)
+	// 	}
+	// 	return err
+	// }
+
+	return nil
+}
+
+func (gn *GN) Commit() error {
+	r, err := git.PlainOpen(gn.NotesPath)
+	if err != nil {
+		return err
+	}
+
+	w, err := r.Worktree()
+	if err != nil {
+		return err
+	}
+
+	if gn.CommitMessage == "" {
+		gn.CommitMessage = fmt.Sprintf("Update notes - %s", time.Now().Local().String())
+	}
+
+	return gn.commit(gn.CommitMessage, w)
+}
+
+func (gn *GN) commit(msg string, w *git.Worktree) error {
+	_, err := w.Commit(fmt.Sprintf(msg), &git.CommitOptions{
+		Author: &object.Signature{
+			When:  time.Now(),
+			Name:  gn.author.Name,
+			Email: gn.author.Email},
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (gn *GN) AddOrigin(url string) error {
+	r, err := git.PlainOpen(gn.NotesPath)
+	if err != nil {
+		return err
+	}
+
+	_, err = r.CreateRemote(&config.RemoteConfig{
+		Name: "origin",
+		URLs: []string{url},
+	})
+
+	return err
 }
 
 // Path returns the path in which the notes are stored

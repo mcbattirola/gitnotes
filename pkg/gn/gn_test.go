@@ -1,32 +1,11 @@
 package gn
 
-import (
-	"os"
-	"os/exec"
-	"path/filepath"
-	"testing"
+import "testing"
 
-	"github.com/stretchr/testify/assert"
-)
-
-func TestGetProjectRoot(t *testing.T) {
-	// create temp dir
-	rootPath := t.TempDir()
-
-	// rootPath will be something like /tmp/hash/number
-	// so the expected root of the project is 'number'
-	rootName := filepath.Base(rootPath)
-
-	// start a git repo in it
-	_, err := exec.Command("git", "init", rootPath).Output()
-	assert.Nil(t, err)
-
-	// change working directory to rootPath
-	os.Chdir(rootPath)
-	assert.Nil(t, err)
-
-	// expect the value returned to be projName
-	r, err := getProjectRoot()
-	assert.Nil(t, err)
-	assert.Equal(t, rootName, r)
+// We'll need some mocks to properly test this
+func TestEdit(t *testing.T) {
+	// assert that it commits if AlwaysCommit is true
+	// assert that it uses the current project if none is provided
+	// assert that it uses the current branch if none is provided
+	// assert that it uses the received project and branch
 }

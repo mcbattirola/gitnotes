@@ -10,8 +10,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// TODO use some package for testing
-
 func TestReadConfigFile(t *testing.T) {
 	// it creates a config file if it doesn't exist
 	gn := gn.GN{}
@@ -30,4 +28,5 @@ func TestReadConfigFile(t *testing.T) {
 	// expect default values
 	assert.Equal(t, "vi", gn.Editor)
 	assert.Equal(t, os.ExpandEnv("$HOME/gitnotes"), gn.NotesPath)
+	assert.Equal(t, false, gn.AlwaysCommit)
 }
