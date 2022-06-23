@@ -29,11 +29,37 @@ func getCurrentBranch(r *git.Repository) (string, error) {
 	return s[1], nil
 }
 
-func readGlobalGitAuthor() Author {
-	// run git config --list
-	// then find user name and email from it
-	// TODO
-	return Author{}
+func readGlobalGitAuthor() (Author, error) {
+	config, err := exec.Command("git", "config", "--list").Output()
+	if err != nil {
+		return Author{}, err
+	}
+	return getAuthorFromGitConfig(config), nil
+}
+
+// getAuthorFromGitConfig reads the output of a `git config --list`
+// and returns an Author from it
+func getAuthorFromGitConfig(config []byte) Author {
+	lines := strings.Split(string(config), "\n")
+
+	author := Author{}
+	for _, line := range lines {
+		s := strings.Split(line, "=")
+		if len(s) <= 1 {
+			continue
+		}
+		switch s[0] {
+		case "user.email":
+			author.Email = s[1]
+
+		case "user.name":
+			author.Name = s[1]
+		default:
+			continue
+		}
+	}
+
+	return author
 }
 
 // getProjectRoot runs git through a syscall to get the top level directory

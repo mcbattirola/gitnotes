@@ -30,12 +30,14 @@ type GN struct {
 // New creates a new GN
 // with required internal fields set
 func New() *GN {
-	// read git global configs
-	// this is necessary because go-git wont read it
-	// this can be removed if se use only syscalls instead of
-	// using go-git
+	a, err := readGlobalGitAuthor()
+	if err != nil {
+		// it is to ignore this error
+		// the commit will have an empty signature but should work
+		// TODO log error
+	}
 	return &GN{
-		author: readGlobalGitAuthor(),
+		author: a,
 	}
 }
 
