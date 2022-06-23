@@ -172,7 +172,10 @@ func (gn *GN) Push() error {
 	}
 
 	_, err = w.Commit(fmt.Sprintf("Update notes - %s", time.Now().Local().String()), &git.CommitOptions{
-		Author: &object.Signature{When: time.Now()},
+		Author: &object.Signature{
+			When:  time.Now(),
+			Name:  gn.author.Name,
+			Email: gn.author.Email},
 	})
 	if err != nil {
 		return err
@@ -186,7 +189,7 @@ func (gn *GN) Push() error {
 	}
 
 	// push
-	// TODO make branch name variable / read it from current branch
+	// TODO make branch name variable / read it from configs
 	cmd := exec.Command("git", "-C", gn.NotesPath, "push", "--set-upstream", "origin", "master")
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout

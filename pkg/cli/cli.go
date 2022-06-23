@@ -13,7 +13,7 @@ import (
 )
 
 func Run(args []string) int {
-	app := gn.GN{}
+	app := gn.New()
 
 	// order of precedence is: CLI > config file
 	// 1. apply config file
@@ -27,7 +27,7 @@ func Run(args []string) int {
 		return 1
 	}
 	configFileName := "gn.conf"
-	if err := config.ReadConfigFile(&app, configPath, configFileName); err != nil {
+	if err := config.ReadConfigFile(app, configPath, configFileName); err != nil {
 		fmt.Fprintf(os.Stderr, "error reading config file: %s\n", err.Error())
 		return 1
 	}
@@ -133,7 +133,7 @@ func Run(args []string) int {
 	return 0
 }
 
-func checkInitParams(app gn.GN) error {
+func checkInitParams(app *gn.GN) error {
 	if app.Project != "" && app.Branch == "" {
 		return errflags.New("branch is necessary when specifying a project", errflags.BadParameter)
 	}
