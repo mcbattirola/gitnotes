@@ -75,19 +75,10 @@ func Run(args []string) int {
 	}
 
 	switch args[1] {
-	case "init":
-		{
-			// check if local repo exists (in config file or default path)
-			//  create it if dont exist
-			// create a dir to the current project on the notes repo if it doesnt exist (warn if it does)
-			// dir default name should be gitnotes, should accept CLI arg
-			fmt.Println("init not implemented")
-			return 1
-		}
 	case editCmd.Name():
 		{
 			editCmd.Parse(args[2:])
-			if err := checkInitParams(app); err != nil {
+			if err := checkEditParams(app); err != nil {
 				fmt.Fprintf(os.Stderr, "error validating parameters: %s\n", err.Error())
 				return 1
 			}
@@ -155,7 +146,7 @@ func Run(args []string) int {
 	return 0
 }
 
-func checkInitParams(app *gn.GN) error {
+func checkEditParams(app *gn.GN) error {
 	if app.Project != "" && app.Branch == "" {
 		return errflags.New("branch is necessary when specifying a project", errflags.BadParameter)
 	}

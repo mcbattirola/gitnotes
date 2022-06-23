@@ -39,7 +39,7 @@ func TestCheckInitParams(t *testing.T) {
 	}
 	for _, tc := range tt {
 		t.Run(tc.name, func(t *testing.T) {
-			err := checkInitParams(&tc.app)
+			err := checkEditParams(&tc.app)
 			if tc.expectErr {
 				assert.NotNil(t, err)
 			} else {

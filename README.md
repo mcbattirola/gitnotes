@@ -4,8 +4,9 @@ Commands:
 
 ```bash
 gn edit # edit current branch notes; alternativaly accepts a branch name
-gn commit # (not implemented) commits notes to remote
-gn push # (not implemented) push notes to remote
+gn delete # (not implemented) deletes a note
+gn commit # commits notes to remote
+gn push # push notes to remote
 gn pull # (not implemented) pull notes from remote
 gn sync # (not implemented) pull and push
 gn path # prints notes path into stdout
