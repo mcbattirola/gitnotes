@@ -30,7 +30,6 @@ gn path # prints notes path into stdout
 
 Config fields pending implementation:
 
-- always-commit=true/false
 - always-push=true/false
 - header=true/false
 - header-template=path to header template file
