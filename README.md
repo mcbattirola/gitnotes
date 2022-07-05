@@ -16,10 +16,11 @@ gn path # prints notes path into stdout
 ## TODO
 
 - add log and log level
-- consider replacing git lib for git syscalls
+- replace git lib for git syscalls (make git package)
 - implement missing commands
 - setup ci pipeline
 - make a real README
+- improve tests
 
 ### Config fields
 
@@ -28,6 +29,10 @@ Config fields pending implementation:
 - always-push=true/false
 
 ## Ideas
+
+### edit -m option
+
+`gn edit -m "message"` appends `message` to the end of note
 
 ### Note template / headers
 
