@@ -8,12 +8,8 @@ gn delete # (not implemented) deletes a note
 gn commit # commits notes to remote
 gn push # push notes to remote
 gn pull # (not implemented) pull notes from remote
-gn sync # (not implemented) pull and push
 gn path # prints notes path into stdout
 ```
-
-- `.config` file to configurations later
-- works locally, can be synced
 
 ---
 
@@ -24,12 +20,17 @@ gn path # prints notes path into stdout
 - implement missing commands
 - setup ci pipeline
 - make a real README
-- add a header to each new note (notes on branch xxx)
 
 ### Config fields
 
 Config fields pending implementation:
 
 - always-push=true/false
+
+## Ideas
+
+### Note template / headers
+
+- add a header to each new note (notes on branch xxx)
 - header=true/false
 - header-template=path to header template file
