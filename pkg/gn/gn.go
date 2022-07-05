@@ -28,7 +28,9 @@ type GN struct {
 	CommitMessage string
 	// AlwaysCommit indicates if all note edit should be commited
 	AlwaysCommit bool
-	author       Author
+	// RemoteURL is the URL to the remote repository
+	RemoteURL string
+	author    Author
 }
 
 // New creates a new GN
@@ -179,6 +181,7 @@ func (gn *GN) Push() error {
 		return err
 	}
 
+	// create commit
 	if gn.CommitMessage == "" {
 		gn.CommitMessage = fmt.Sprintf("Update notes - %s", time.Now().Local().String())
 	}
@@ -187,10 +190,7 @@ func (gn *GN) Push() error {
 		return err
 	}
 
-	if _, err := r.Remote("origin"); err != nil {
-		if err == git.ErrRemoteNotFound {
-			return errflags.Flag(err, errflags.NoRemote)
-		}
+	if err = gn.checkAndAddOrigin(r); err != nil {
 		return err
 	}
 
@@ -219,6 +219,28 @@ func (gn *GN) Push() error {
 	// }
 
 	return nil
+}
+
+// Pull pushes git notes to the remote repository
+func (gn *GN) Pull() error {
+	// TODO log this error if in debug/verbose mode
+	gn.init()
+
+	r, err := git.PlainOpen(gn.NotesPath)
+	if err != nil {
+		return err
+	}
+
+	err = gn.checkAndAddOrigin(r)
+	if err != nil {
+		return err
+	}
+
+	cmd := exec.Command("git", "-C", gn.NotesPath, "pull", "origin", "master")
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	return cmd.Run()
 }
 
 func (gn *GN) Commit() error {
@@ -250,6 +272,30 @@ func (gn *GN) commit(msg string, w *git.Worktree) error {
 		return err
 	}
 
+	return nil
+}
+
+// checkAndAddOrigin checks if an remote origin exists
+// if it don't, it tries to add gn.RemoteURL as origin
+// returns errflags.NoRemote if didn't find remote and couldn't create one
+// or another error in case other operation fails
+func (gn *GN) checkAndAddOrigin(r *git.Repository) error {
+	if _, err := r.Remote("origin"); err != nil {
+		if err != git.ErrRemoteNotFound {
+			return err
+		}
+
+		// if no remote origin was found but there is a RemoteURL,
+		// add it as origin and continue
+		if gn.RemoteURL != "" {
+			err = gn.AddOrigin(gn.RemoteURL)
+			if err != nil {
+				return err
+			}
+		} else {
+			return errflags.Flag(err, errflags.NoRemote)
+		}
+	}
 	return nil
 }
 

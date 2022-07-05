@@ -43,15 +43,22 @@ func Run(args []string) int {
 		editCmd.PrintDefaults()
 	}
 
-	// gn init
-	// inits the git repo
-	// initCmd := flag.NewFlagSet("init", flag.ExitOnError)
-
 	// gn push
 	// pushes notes changes to origin
 	pushCmd := flag.NewFlagSet("push", flag.ExitOnError)
+	pushCmd.StringVar(&app.RemoteURL, "u", app.RemoteURL, "url of the remote origin in case none is set in the repository")
 	pushCmd.Usage = func() {
 		fmt.Println("Push notes changes to remote. Commits any uncommited change.")
+		pushCmd.PrintDefaults()
+	}
+
+	// gn pull
+	// pulls from origin
+	pullCmd := flag.NewFlagSet("pull", flag.ExitOnError)
+	pullCmd.StringVar(&app.RemoteURL, "u", app.RemoteURL, "url of the remote origin in case none is set in the repository")
+	pullCmd.Usage = func() {
+		fmt.Println("Pull notes from origin")
+		pullCmd.PrintDefaults()
 	}
 
 	// gn path
@@ -88,14 +95,6 @@ func Run(args []string) int {
 				return 1
 			}
 		}
-	case "sync":
-		{
-			// check in the config file if remote exists
-			//  if it does, commit to it
-			//  else, create it (will ask gh credentials or key or w/e)
-			fmt.Println("sync not implemented")
-			return 1
-		}
 	case pushCmd.Name():
 		{
 			pushCmd.Parse(args[2:])
@@ -121,6 +120,20 @@ func Run(args []string) int {
 				fmt.Fprintf(os.Stderr, "error pushing notes: %s\n", err.Error())
 				return 1
 			}
+		}
+	case pullCmd.Name():
+		{
+			pullCmd.Parse(args[2:])
+
+			if err := app.Pull(); err != nil {
+				if errflags.HasFlag(err, errflags.NoRemote) {
+					fmt.Fprintf(os.Stderr, "no remote found. Try running again with -u [url] flag to set a remote origin\n")
+					return 1
+				}
+				fmt.Fprintf(os.Stderr, "error pulling notes: %s\n", err.Error())
+				return 1
+			}
+
 		}
 	case pathCmd.Name():
 		{
