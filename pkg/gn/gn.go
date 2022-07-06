@@ -317,3 +317,40 @@ func (gn *GN) AddOrigin(url string) error {
 func (gn *GN) Path() string {
 	return gn.NotesPath
 }
+
+func (gn *GN) Delete() error {
+	var err error
+
+	project := gn.Project
+	// if didn't received project name, find it
+	if project == "" {
+		// read current project name and branch
+		project, err = getProjectRoot()
+		if err != nil {
+			return err
+		}
+	}
+
+	branch := gn.Branch
+	// if didn't received branch name, use current working branch
+	if branch == "" {
+		// get user working repo
+		dir, err := os.Getwd()
+		if err != nil {
+			return err
+		}
+		r, err := git.PlainOpen(dir)
+		if err != nil {
+			return err
+		}
+
+		branch, err = getCurrentBranch(r)
+		if err != nil {
+			return err
+		}
+	}
+
+	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
+	notePath := fmt.Sprintf("%s/%s", projectPath, branch)
+	return os.Remove(notePath)
+}

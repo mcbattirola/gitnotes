@@ -76,6 +76,15 @@ func Run(args []string) int {
 		commitCmd.PrintDefaults()
 	}
 
+	// gn delete
+	deleteCmd := flag.NewFlagSet("delete", flag.ExitOnError)
+	deleteCmd.StringVar(&app.Project, "p", app.Project, "project to delete notes")
+	deleteCmd.StringVar(&app.Branch, "b", app.Branch, "branch to delete notes")
+	deleteCmd.Usage = func() {
+		fmt.Println("delete notes")
+		deleteCmd.PrintDefaults()
+	}
+
 	if len(os.Args) < 2 {
 		fmt.Println("subcommand missing") // TODO print help, print subcommands
 		return 1
@@ -84,7 +93,10 @@ func Run(args []string) int {
 	switch args[1] {
 	case editCmd.Name():
 		{
-			editCmd.Parse(args[2:])
+			if err := editCmd.Parse(args[2:]); err != nil {
+				fmt.Fprintf(os.Stderr, "error parsing parameters: %s\n", err.Error())
+				return 1
+			}
 			if err := checkEditParams(app); err != nil {
 				fmt.Fprintf(os.Stderr, "error validating parameters: %s\n", err.Error())
 				return 1
@@ -147,6 +159,17 @@ func Run(args []string) int {
 			}
 			if err := app.Commit(); err != nil {
 				fmt.Fprintf(os.Stderr, "error while commiting notes: %s\n", err.Error())
+				return 1
+			}
+		}
+	case deleteCmd.Name():
+		{
+			if err := deleteCmd.Parse(args[2:]); err != nil {
+				fmt.Fprintf(os.Stderr, "error parsing delete command arguments: %s", err.Error())
+				return 1
+			}
+			if err := app.Delete(); err != nil {
+				fmt.Fprintf(os.Stderr, "error while deleting note: %s\n", err.Error())
 				return 1
 			}
 		}
