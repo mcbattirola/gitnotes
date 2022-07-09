@@ -16,17 +16,10 @@ gn path # prints notes path into stdout
 ## TODO
 
 - add log and log level
-- replace git lib for git syscalls (make git package)
-- implement missing commands
+- improve tests
+- refactor gn struct
 - setup ci pipeline
 - make a real README
-- improve tests
-
-### Config fields
-
-Config fields pending implementation:
-
-- always-push=true/false
 
 ## Ideas
 
