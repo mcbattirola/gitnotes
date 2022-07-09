@@ -11,6 +11,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/config"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/mcbattirola/gitnotes/pkg/errflags"
 )
@@ -148,7 +149,7 @@ func (gn *GN) edit(project string, branch string) error {
 // init initializes a git repo into the notes path.
 // Running git init in an existing repository is safe. It will not overwrite things that are already there
 func (gn *GN) init() error {
-	_, err := exec.Command("git", "init", "--quiet", gn.NotesPath).Output()
+	_, err := git.PlainInit(gn.NotesPath, false)
 	if err != nil {
 		return err
 	}
@@ -194,29 +195,13 @@ func (gn *GN) Push() error {
 		return err
 	}
 
-	// push
-	// TODO make branch name variable / read it from configs
-	cmd := exec.Command("git", "-C", gn.NotesPath, "push", "--set-upstream", "origin", "master")
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err = cmd.Run()
-	if err != nil {
-		fmt.Printf("push failed: %s\n", err.Error())
+	err = r.Push(&git.PushOptions{})
+	if err != nil && err != git.NoErrAlreadyUpToDate {
+		if err == git.ErrRemoteNotFound {
+			return errflags.Flag(err, errflags.NoRemote)
+		}
 		return err
 	}
-	// err = r.Push(&git.PushOptions{
-	// 	Auth: &http.BasicAuth{
-	// 		Username: "username",
-	// 		Password: "password",
-	// 	},
-	// })
-	// if err != nil && err != git.NoErrAlreadyUpToDate {
-	// 	if err == git.ErrRemoteNotFound {
-	// 		return errflags.Flag(err, errflags.NoRemote)
-	// 	}
-	// 	return err
-	// }
 
 	return nil
 }
@@ -236,11 +221,17 @@ func (gn *GN) Pull() error {
 		return err
 	}
 
-	cmd := exec.Command("git", "-C", gn.NotesPath, "pull", "origin", "master")
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+	// Get the working directory for the repository
+	w, err := r.Worktree()
+	if err != nil {
+		return err
+	}
+	err = w.Pull(&git.PullOptions{RemoteName: "origin", ReferenceName: plumbing.Master})
+	if err != git.NoErrAlreadyUpToDate {
+		return err
+	}
+
+	return nil
 }
 
 func (gn *GN) Commit() error {
@@ -262,7 +253,7 @@ func (gn *GN) Commit() error {
 }
 
 func (gn *GN) commit(msg string, w *git.Worktree) error {
-	_, err := w.Commit(fmt.Sprintf(msg), &git.CommitOptions{
+	_, err := w.Commit(msg, &git.CommitOptions{
 		Author: &object.Signature{
 			When:  time.Now(),
 			Name:  gn.author.Name,
