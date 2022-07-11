@@ -15,11 +15,11 @@ gn path # prints notes path into stdout
 
 ## TODO
 
-- add log and log level
-- improve tests
-- refactor gn struct
-- setup ci pipeline
-- make a real README
+1. refactor gn struct
+2. improve tests
+3. add log and log level
+4. setup ci pipeline
+5. make a real README
 
 ## Ideas
 
