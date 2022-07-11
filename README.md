@@ -15,20 +15,14 @@ gn path # prints notes path into stdout
 
 ## TODO
 
-- add log and log level
-- improve tests
-- refactor gn struct
-- setup ci pipeline
-- make a real README
+1. improve tests
+2. add log and log level
+3. setup ci pipeline
+4. make a real README
 
 ## Ideas
 
 ### edit -m option
 
 `gn edit -m "message"` appends `message` to the end of note
-
-### Note template / headers
-
-- add a header to each new note (notes on branch xxx)
-- header=true/false
-- header-template=path to header template file
+`gn print` prints note into stdin

@@ -1,4 +1,4 @@
-package cli
+package commands
 
 import (
 	"testing"
@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCheckInitParams(t *testing.T) {
+func TestCheckEditParams(t *testing.T) {
 	tt := []struct {
 		name      string
 		app       gn.GN

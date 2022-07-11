@@ -95,8 +95,7 @@ func (gn *GN) Edit() error {
 	return gn.edit(project, branch)
 }
 
-// edit opens a specific project/branch
-// on the selected editor
+// edit opens a specific project/branch on the selected editor
 // If project is empty, uses current project
 func (gn *GN) edit(project string, branch string) error {
 	_, err := os.Stat(gn.NotesPath)
@@ -115,14 +114,13 @@ func (gn *GN) edit(project string, branch string) error {
 	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
 	notePath := fmt.Sprintf("%s/%s", projectPath, branch)
 
-	// we make the directory with the notePath instead of project path because
+	// make the directory with the notePath instead of project path because
 	// a branch name may contain slashes. In that case, we want to make the full path
 	// and the slashes in branch name will become directories (which is ok for now)
 	if err := os.MkdirAll(filepath.Dir(notePath), os.ModeDir|0700); err != nil {
 		return err
 	}
 
-	// TODO if file doesn't exist, create it with a header
 	_, err = os.OpenFile(notePath, os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		return err
