@@ -17,8 +17,7 @@ gn path # prints notes path into stdout
 
 1. improve tests
 2. add log and log level
-3. setup ci pipeline
-4. make a real README
+3. make a real README
 
 ## Ideas
 
