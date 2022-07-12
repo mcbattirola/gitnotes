@@ -22,7 +22,7 @@ func TestGetProjectRoot(t *testing.T) {
 	assert.Nil(t, err)
 
 	// change working directory to rootPath
-	os.Chdir(rootPath)
+	err = os.Chdir(rootPath)
 	assert.Nil(t, err)
 
 	// expect the value returned to be projName

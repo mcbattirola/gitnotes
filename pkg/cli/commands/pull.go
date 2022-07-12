@@ -17,7 +17,9 @@ func Pull(app *gn.GN, args []string) int {
 		pullCmd.PrintDefaults()
 	}
 
-	pullCmd.Parse(args[2:])
+	if err := pullCmd.Parse(args[2:]); err != nil {
+		fmt.Fprintf(os.Stderr, "error parsing command flags: %s\n", err.Error())
+	}
 
 	if err := app.Pull(); err != nil {
 		if errflags.HasFlag(err, errflags.NoRemote) {
