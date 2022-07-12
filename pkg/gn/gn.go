@@ -110,7 +110,7 @@ func (gn *GN) edit(project string, branch string) error {
 		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
 		if err != nil {
 			if errors.Is(err, fs.ErrPermission) {
-				errflags.Flag(err, errflags.NotAuthorized)
+				return errflags.Flag(err, errflags.NotAuthorized)
 			}
 			return err
 		}
