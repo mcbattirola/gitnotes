@@ -39,6 +39,8 @@ type GN struct {
 func New() *GN {
 	a, err := readGlobalGitAuthor()
 	if err != nil {
+		//nolint
+
 		// it is ok to ignore this error
 		// the commit will have an empty signature but should work
 		// TODO log error
@@ -58,6 +60,7 @@ func (gn *GN) Edit() error {
 		defer func() {
 			err := gn.Commit()
 			if err != nil {
+				//nolint
 				// TODO log err
 			}
 		}()
@@ -67,6 +70,7 @@ func (gn *GN) Edit() error {
 	// we can still procceed if it errors
 	// TODO log this error if in debug/verbose mode
 	if err := gn.init(); err != nil {
+		//nolint
 		// TODO log err
 	}
 
@@ -168,6 +172,7 @@ func (gn *GN) Push() error {
 	// we can still procceed if it errors
 	// TODO log this error if in debug/verbose mode
 	if err := gn.init(); err != nil {
+		//nolint
 		// TODO log err
 	}
 
@@ -217,6 +222,7 @@ func (gn *GN) Push() error {
 func (gn *GN) Pull() error {
 	// TODO log this error if in debug/verbose mode
 	if err := gn.init(); err != nil {
+		//nolint
 		// TODO log err
 	}
 
