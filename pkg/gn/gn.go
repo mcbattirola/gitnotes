@@ -38,9 +38,8 @@ type GN struct {
 // with required internal fields set
 func New() *GN {
 	a, err := readGlobalGitAuthor()
+	//nolint:staticcheck
 	if err != nil {
-		//nolint
-
 		// it is ok to ignore this error
 		// the commit will have an empty signature but should work
 		// TODO log error
@@ -59,8 +58,8 @@ func (gn *GN) Edit() error {
 	if gn.AlwaysCommit {
 		defer func() {
 			err := gn.Commit()
+			//nolint:staticcheck
 			if err != nil {
-				//nolint
 				// TODO log err
 			}
 		}()
@@ -69,8 +68,8 @@ func (gn *GN) Edit() error {
 	// run `git init` into notes path
 	// we can still procceed if it errors
 	// TODO log this error if in debug/verbose mode
+	//nolint:staticcheck
 	if err := gn.init(); err != nil {
-		//nolint
 		// TODO log err
 	}
 
@@ -171,8 +170,8 @@ func (gn *GN) Push() error {
 	// run `git init` into notes path
 	// we can still procceed if it errors
 	// TODO log this error if in debug/verbose mode
+	//nolint:staticcheck
 	if err := gn.init(); err != nil {
-		//nolint
 		// TODO log err
 	}
 
@@ -220,9 +219,8 @@ func (gn *GN) Push() error {
 
 // Pull pushes git notes to the remote repository
 func (gn *GN) Pull() error {
-	// TODO log this error if in debug/verbose mode
+	//nolint:staticcheck
 	if err := gn.init(); err != nil {
-		//nolint
 		// TODO log err
 	}
 
