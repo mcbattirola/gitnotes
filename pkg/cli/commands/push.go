@@ -19,7 +19,11 @@ func Push(app *gn.GN, args []string) int {
 		fmt.Println("Push notes changes to remote. Commits any uncommited change.")
 		pushCmd.PrintDefaults()
 	}
-	pushCmd.Parse(args[2:])
+
+	if err := pushCmd.Parse(args[2:]); err != nil {
+		fmt.Fprintf(os.Stderr, "error parsing command flags: %s\n", err.Error())
+	}
+
 	if err := app.Push(); err != nil {
 		// if remote was not found, prompt user to add a remote
 		if errflags.HasFlag(err, errflags.NoRemote) {

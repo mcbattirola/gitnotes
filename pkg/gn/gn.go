@@ -38,6 +38,7 @@ type GN struct {
 // with required internal fields set
 func New() *GN {
 	a, err := readGlobalGitAuthor()
+	//nolint:staticcheck
 	if err != nil {
 		// it is ok to ignore this error
 		// the commit will have an empty signature but should work
@@ -55,13 +56,22 @@ func (gn *GN) Edit() error {
 	var err error
 
 	if gn.AlwaysCommit {
-		defer gn.Commit()
+		defer func() {
+			err := gn.Commit()
+			//nolint:staticcheck
+			if err != nil {
+				// TODO log err
+			}
+		}()
 	}
 
 	// run `git init` into notes path
 	// we can still procceed if it errors
 	// TODO log this error if in debug/verbose mode
-	gn.init()
+	//nolint:staticcheck
+	if err := gn.init(); err != nil {
+		// TODO log err
+	}
 
 	project := gn.Project
 	// if didn't received project name, find it
@@ -103,7 +113,7 @@ func (gn *GN) edit(project string, branch string) error {
 		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
 		if err != nil {
 			if errors.Is(err, fs.ErrPermission) {
-				errflags.Flag(err, errflags.NotAuthorized)
+				return errflags.Flag(err, errflags.NotAuthorized)
 			}
 			return err
 		}
@@ -160,7 +170,10 @@ func (gn *GN) Push() error {
 	// run `git init` into notes path
 	// we can still procceed if it errors
 	// TODO log this error if in debug/verbose mode
-	gn.init()
+	//nolint:staticcheck
+	if err := gn.init(); err != nil {
+		// TODO log err
+	}
 
 	r, err := git.PlainOpen(gn.NotesPath)
 	if err != nil {
@@ -206,8 +219,10 @@ func (gn *GN) Push() error {
 
 // Pull pushes git notes to the remote repository
 func (gn *GN) Pull() error {
-	// TODO log this error if in debug/verbose mode
-	gn.init()
+	//nolint:staticcheck
+	if err := gn.init(); err != nil {
+		// TODO log err
+	}
 
 	r, err := git.PlainOpen(gn.NotesPath)
 	if err != nil {
