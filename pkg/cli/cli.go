@@ -2,6 +2,7 @@
 package cli
 
 import (
+	"flag"
 	"fmt"
 	"os"
 
@@ -18,7 +19,12 @@ type command struct {
 }
 
 func Run(args []string) int {
-	app := gn.New()
+	// TODO this doesnt work
+	var debug bool
+	flag.BoolVar(&debug, "d", false, "enable debug logs")
+	flag.Parse()
+
+	app := gn.New(debug)
 
 	// read config file
 	homeDir, err := os.UserHomeDir()
@@ -34,38 +40,43 @@ func Run(args []string) int {
 	}
 
 	cmds := map[string]command{
-		"edit": command{
+		"edit": {
 			exec: commands.Edit,
 			help: "edit the git notes",
 		},
-		"push": command{
+		"push": {
 			exec: commands.Push,
 			help: "push notes to remote",
 		},
-		"pull": command{
+		"pull": {
 			exec: commands.Pull,
 			help: "pull notes from remote",
 		},
-		"commit": command{
+		"commit": {
 			exec: commands.Commit,
 			help: "commit notes",
 		},
-		"path": command{
+		"path": {
 			exec: commands.Path,
 			help: "prints the notes path to stdio",
 		},
-		"delete": command{
+		"delete": {
 			exec: commands.Delete,
 			help: "delete notes",
 		},
 	}
 
-	if len(os.Args) < 2 {
+	subcommandIndex := 1
+	if debug {
+		subcommandIndex = 2
+	}
+
+	if len(os.Args) < subcommandIndex+1 {
 		printSubcommansdHelp(cmds)
 		return 1
 	}
 
-	cmd, ok := cmds[args[1]]
+	cmd, ok := cmds[args[subcommandIndex]]
 	if !ok {
 		printSubcommansdHelp(cmds)
 		return 1
