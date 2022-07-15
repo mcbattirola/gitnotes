@@ -26,7 +26,7 @@ func New(isDebug bool) Logger {
 func (l logger) Debug(format string, a ...any) {
 	if l.isDebug {
 		userMsg := fmt.Sprintf(format, a...)
-		fmt.Fprint(os.Stderr, fmt.Sprintf("[DEBUG] %s\n", userMsg))
+		fmt.Fprintf(os.Stderr, "[DEBUG] %s\n", userMsg)
 	}
 }
 
