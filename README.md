@@ -16,8 +16,7 @@ gn path # prints notes path into stdout
 ## TODO
 
 1. improve tests
-2. add log and log level
-3. make a real README
+2. make a real README
 
 ## Ideas
 

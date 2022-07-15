@@ -14,6 +14,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/mcbattirola/gitnotes/pkg/errflags"
+	"github.com/mcbattirola/gitnotes/pkg/log"
 )
 
 type GN struct {
@@ -32,20 +33,22 @@ type GN struct {
 	// RemoteURL is the URL to the remote repository
 	RemoteURL string
 	author    Author
+	log       log.Logger
 }
 
 // New creates a new GN
 // with required internal fields set
-func New() *GN {
+func New(debug bool) *GN {
+	log := log.New(debug)
+
 	a, err := readGlobalGitAuthor()
-	//nolint:staticcheck
 	if err != nil {
 		// it is ok to ignore this error
-		// the commit will have an empty signature but should work
-		// TODO log error
+		log.Debug("failed to read global git author: %s", err.Error)
 	}
 	return &GN{
 		author: a,
+		log:    log,
 	}
 }
 
@@ -58,19 +61,16 @@ func (gn *GN) Edit() error {
 	if gn.AlwaysCommit {
 		defer func() {
 			err := gn.Commit()
-			//nolint:staticcheck
 			if err != nil {
-				// TODO log err
+				gn.log.Info("failed to commit: %s", err.Error())
 			}
 		}()
 	}
 
 	// run `git init` into notes path
 	// we can still procceed if it errors
-	// TODO log this error if in debug/verbose mode
-	//nolint:staticcheck
 	if err := gn.init(); err != nil {
-		// TODO log err
+		gn.log.Debug("failed to init: %s", err.Error())
 	}
 
 	project := gn.Project
@@ -170,9 +170,8 @@ func (gn *GN) Push() error {
 	// run `git init` into notes path
 	// we can still procceed if it errors
 	// TODO log this error if in debug/verbose mode
-	//nolint:staticcheck
 	if err := gn.init(); err != nil {
-		// TODO log err
+		gn.log.Debug("failed to init: %s", err.Error())
 	}
 
 	r, err := git.PlainOpen(gn.NotesPath)
@@ -219,9 +218,8 @@ func (gn *GN) Push() error {
 
 // Pull pushes git notes to the remote repository
 func (gn *GN) Pull() error {
-	//nolint:staticcheck
 	if err := gn.init(); err != nil {
-		// TODO log err
+		gn.log.Debug("failed to init: %s", err.Error())
 	}
 
 	r, err := git.PlainOpen(gn.NotesPath)
