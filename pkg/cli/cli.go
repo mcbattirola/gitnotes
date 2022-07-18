@@ -86,10 +86,11 @@ func Run(args []string) int {
 }
 
 func printSubcommansdHelp(cmds map[string]command) {
+	fmt.Println("usage: gn [-d] <command> <args>")
 	fmt.Println("Available commands:")
 	for key, val := range cmds {
 		fmt.Printf("- %s: %s\n", key, val.help)
 	}
 
-	fmt.Println("run [command] -h for more details")
+	fmt.Println("run 'gn [command] -h' for more details on each command")
 }
