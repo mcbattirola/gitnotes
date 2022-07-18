@@ -19,7 +19,6 @@ type command struct {
 }
 
 func Run(args []string) int {
-	// TODO this doesnt work
 	var debug bool
 	flag.BoolVar(&debug, "d", false, "enable debug logs")
 	flag.Parse()
