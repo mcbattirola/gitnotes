@@ -136,8 +136,7 @@ func (gn *GN) edit(project string, branch string) error {
 		return err
 	}
 
-	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
-	notePath := fmt.Sprintf("%s/%s", projectPath, branch)
+	notePath := getNotePath(gn.NotesPath, project, branch)
 
 	// make the directory with the notePath instead of project path because
 	// a branch name may contain slashes. In that case, we want to make the full path
@@ -371,8 +370,7 @@ func (gn *GN) ReadNote() (string, error) {
 		return "", err
 	}
 
-	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
-	notePath := fmt.Sprintf("%s/%s", projectPath, branch)
+	notePath := getNotePath(gn.NotesPath, project, branch)
 
 	if err := os.MkdirAll(filepath.Dir(notePath), os.ModeDir|0700); err != nil {
 		return "", err
@@ -389,36 +387,22 @@ func (gn *GN) ReadNote() (string, error) {
 func (gn *GN) Delete() error {
 	var err error
 
-	project := gn.Project
-	// if didn't received project name, find it
-	if project == "" {
-		// read current project name and branch
-		project, err = getProjectRoot()
-		if err != nil {
-			return err
-		}
+	project, err := gn.findProject()
+	if err != nil {
+		return err
 	}
 
-	branch := gn.Branch
-	// if didn't received branch name, use current working branch
-	if branch == "" {
-		// get user working repo
-		dir, err := os.Getwd()
-		if err != nil {
-			return err
-		}
-		r, err := git.PlainOpen(dir)
-		if err != nil {
-			return err
-		}
-
-		branch, err = getCurrentBranch(r)
-		if err != nil {
-			return err
-		}
+	branch, err := gn.findBranch()
+	if err != nil {
+		return err
 	}
 
-	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
-	notePath := fmt.Sprintf("%s/%s", projectPath, branch)
+	notePath := getNotePath(gn.NotesPath, project, branch)
 	return os.Remove(notePath)
+}
+
+// getNotePath returns the path on the filesystem of the note
+func getNotePath(notesPath string, project string, branch string) string {
+	projectPath := fmt.Sprintf("%s/%s", notesPath, project)
+	return fmt.Sprintf("%s/%s", projectPath, branch)
 }
