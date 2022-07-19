@@ -59,6 +59,10 @@ func Run(args []string) int {
 			exec: commands.Path,
 			help: "prints the notes path to stdio",
 		},
+		"print": {
+			exec: commands.Print,
+			help: "prints the note to stdio",
+		},
 		"delete": {
 			exec: commands.Delete,
 			help: "delete notes",

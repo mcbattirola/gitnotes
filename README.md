@@ -9,6 +9,7 @@ gn commit # commits notes to remote
 gn push # push notes to remote
 gn pull # pull notes from remote
 gn path # prints notes path into stdout
+gn print # prints the note into stdin
 ```
 
 ---
@@ -17,10 +18,3 @@ gn path # prints notes path into stdout
 
 1. improve tests
 2. make a real README
-
-## Ideas
-
-### edit -m option
-
-`gn edit -m "message"` appends `message` to the end of note
-`gn print` prints note into stdin
