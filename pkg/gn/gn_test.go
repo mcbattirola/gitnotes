@@ -22,7 +22,8 @@ func TestFindProject(t *testing.T) {
 	}
 
 	// change dir to source code path inside test container
-	os.Chdir(os.Getenv("GN_CODE_PATH"))
+	err := os.Chdir(os.Getenv("GN_CODE_PATH"))
+	assert.NoError(t, err)
 
 	gn := New(false)
 
@@ -44,7 +45,8 @@ func TestFindBranch(t *testing.T) {
 	}
 
 	// change dir to source code path inside test container
-	os.Chdir(os.Getenv("GN_CODE_PATH"))
+	err := os.Chdir(os.Getenv("GN_CODE_PATH"))
+	assert.NoError(t, err)
 
 	gn := New(false)
 
@@ -85,9 +87,11 @@ func TestReadNote(t *testing.T) {
 
 	// add a note to it
 	note := fmt.Sprintf("%s/%s", gn.NotesPath, project)
-	os.MkdirAll(note, os.ModeDir|0700)
+	err := os.MkdirAll(note, os.ModeDir|0700)
+	assert.NoError(t, err)
+
 	content := "this is the note content"
-	err := os.WriteFile(note+"/"+branch, []byte(content), os.ModeDir|0700)
+	err = os.WriteFile(note+"/"+branch, []byte(content), os.ModeDir|0700)
 	assert.NoError(t, err)
 
 	noteContent, err := gn.ReadNote()
