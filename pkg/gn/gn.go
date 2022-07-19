@@ -73,51 +73,66 @@ func (gn *GN) Edit() error {
 		gn.log.Debug("failed to init: %s", err.Error())
 	}
 
+	project, err := gn.findProject()
+	if err != nil {
+		return err
+	}
+
+	branch, err := gn.findBranch()
+	if err != nil {
+		return err
+	}
+
+	return gn.edit(project, branch)
+}
+
+// findProject returns the name of the project
+// if no project is set, it finds and returns the current
+// working directory project
+func (gn *GN) findProject() (string, error) {
 	project := gn.Project
 	// if didn't received project name, find it
 	if project == "" {
 		// read current project name and branch
-		project, err = getProjectRoot()
+		project, err := getProjectRoot()
 		if err != nil {
-			return err
+			return "", err
 		}
+		return project, nil
 	}
 
+	return project, nil
+}
+
+func (gn *GN) findBranch() (string, error) {
 	branch := gn.Branch
 	// if didn't received branch name, use current working branch
 	if branch == "" {
 		// get user working repo
 		dir, err := os.Getwd()
 		if err != nil {
-			return err
+			return "", err
 		}
 		r, err := git.PlainOpen(dir)
 		if err != nil {
-			return err
+			return "", err
 		}
 
 		branch, err = getCurrentBranch(r)
 		if err != nil {
-			return err
+			return "", err
 		}
+		return branch, nil
 	}
 
-	return gn.edit(project, branch)
+	return branch, nil
 }
 
 // edit opens a specific project/branch on the selected editor
 // If project is empty, uses current project
 func (gn *GN) edit(project string, branch string) error {
-	_, err := os.Stat(gn.NotesPath)
-	if os.IsNotExist(err) {
-		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
-		if err != nil {
-			if errors.Is(err, fs.ErrPermission) {
-				return errflags.Flag(err, errflags.NotAuthorized)
-			}
-			return err
-		}
-	} else if err != nil {
+	err := gn.createNotesPath()
+	if err != nil {
 		return err
 	}
 
@@ -148,6 +163,25 @@ func (gn *GN) edit(project string, branch string) error {
 
 	err = cmd.Run()
 	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// createNotesPath creates the note file if it doesn't exist
+// it does nothing if the file already exists
+func (gn *GN) createNotesPath() error {
+	_, err := os.Stat(gn.NotesPath)
+	if os.IsNotExist(err) {
+		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
+		if err != nil {
+			if errors.Is(err, fs.ErrPermission) {
+				return errflags.Flag(err, errflags.NotAuthorized)
+			}
+			return err
+		}
+	} else if err != nil {
 		return err
 	}
 
@@ -318,6 +352,38 @@ func (gn *GN) AddOrigin(url string) error {
 // Path returns the path in which the notes are stored
 func (gn *GN) Path() string {
 	return gn.NotesPath
+}
+
+// ReadNote returns the content of the note
+func (gn *GN) ReadNote() (string, error) {
+	project, err := gn.findProject()
+	if err != nil {
+		return "", err
+	}
+
+	branch, err := gn.findBranch()
+	if err != nil {
+		return "", err
+	}
+
+	err = gn.createNotesPath()
+	if err != nil {
+		return "", err
+	}
+
+	projectPath := fmt.Sprintf("%s/%s", gn.NotesPath, project)
+	notePath := fmt.Sprintf("%s/%s", projectPath, branch)
+
+	if err := os.MkdirAll(filepath.Dir(notePath), os.ModeDir|0700); err != nil {
+		return "", err
+	}
+
+	f, err := os.ReadFile(notePath)
+	if err != nil {
+		return "", err
+	}
+
+	return string(f), nil
 }
 
 func (gn *GN) Delete() error {
