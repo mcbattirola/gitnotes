@@ -16,5 +16,4 @@ gn print # prints the note into stdin
 
 ## TODO
 
-1. improve tests
-2. make a real README
+1. write readme
