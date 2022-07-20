@@ -202,7 +202,6 @@ func (gn *GN) init() error {
 func (gn *GN) Push() error {
 	// run `git init` into notes path
 	// we can still procceed if it errors
-	// TODO log this error if in debug/verbose mode
 	if err := gn.init(); err != nil {
 		gn.log.Debug("failed to init: %s", err.Error())
 	}
@@ -211,8 +210,6 @@ func (gn *GN) Push() error {
 	if err != nil {
 		return err
 	}
-
-	// create an upstream branch if it doesn't exist
 
 	// run `git add .`
 	w, err := r.Worktree()
