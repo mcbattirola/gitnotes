@@ -39,3 +39,11 @@ clean:
 
 ./dist/gn:
 	make build
+
+.PHONY: build-test-container
+build-test-container:
+	docker build -t gn-test-runner:latest -f test/Dockerfile .
+
+.PHONY: test-integration
+test-integration: build-test-container
+	docker run gn-test-runner:latest

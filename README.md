@@ -16,5 +16,4 @@ gn print # prints the note into stdin
 
 ## TODO
 
-1. add test container to run integration tests
-2. write readme
+1. write readme
