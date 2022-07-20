@@ -23,6 +23,7 @@ func New(isDebug bool) Logger {
 	}
 }
 
+// Debug prints the message to stderr only on debug mode
 func (l logger) Debug(format string, a ...any) {
 	if l.isDebug {
 		userMsg := fmt.Sprintf(format, a...)
@@ -30,6 +31,7 @@ func (l logger) Debug(format string, a ...any) {
 	}
 }
 
+// Info prints the message to stderr
 func (l logger) Info(format string, a ...any) {
 	fmt.Fprintf(os.Stderr, format, a...)
 }
