@@ -74,7 +74,7 @@ gitnotes will create a config file if it doesn't find `$HOME/.config/gitnotes/gn
 ### Default config file
 
 ```bash
-editor=vim # binary name of the code editor
+editor=vim # binary name of the code editor (e.g. code, gedit, nvim, nano)
 notes=$HOME/gitnotes # path in which notes will be stored
 always-commit=false # commit after each `gn edit` (true/false)
 ```
