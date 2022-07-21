@@ -10,7 +10,7 @@ $ cd my-project # on branch main of my-project-
 
 $ gn edit # opens my-project/main note on editor
 
-$ git master -b another-branch
+$ git checkout -b another-branch
 
 $ gn edit # opens my-project/another-branch note
 
