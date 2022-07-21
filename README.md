@@ -1,4 +1,4 @@
-# gitnotes
+# gitnotes :notebook:
 
 gitnotes is a simple git-aware notes manager. It makes taking notes easy while working on multiple projects/branchs by opening the correct note when you run `gn edit`.
 
