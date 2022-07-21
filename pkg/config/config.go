@@ -46,11 +46,11 @@ func ReadConfigFile(gn *gn.GN, path string, fileName string) error {
 
 		switch s[0] {
 		case "editor":
-			gn.Editor = s[1]
+			gn.Editor = parseInput(s[1])
 		case "notes":
-			gn.NotesPath = os.ExpandEnv(s[1])
+			gn.NotesPath = parseInput(s[1])
 		case "always-commit":
-			if s[1] == "true" {
+			if parseInput(s[1]) == "true" {
 				gn.AlwaysCommit = true
 			}
 
@@ -61,6 +61,14 @@ func ReadConfigFile(gn *gn.GN, path string, fileName string) error {
 	}
 
 	return nil
+}
+
+// parseInput reads the input, removes comments and
+// trim whitespaces
+func parseInput(i string) string {
+	s := strings.Split(i, "#")[0]
+	s = strings.TrimSpace(s)
+	return os.ExpandEnv(s)
 }
 
 func createConfigFile(configPath string, fileName string) error {
