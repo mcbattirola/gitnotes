@@ -96,8 +96,10 @@ func (gn *GN) findProject() (string, error) {
 		// read current project name and branch
 		project, err := getProjectRoot()
 		if err != nil {
+			gn.log.Debug("could not find project root: %s", err.Error())
 			return "", err
 		}
+		gn.log.Debug("found project root: %s", project)
 		return project, nil
 	}
 
@@ -111,10 +113,12 @@ func (gn *GN) findBranch() (string, error) {
 		// get user working repo
 		dir, err := os.Getwd()
 		if err != nil {
+			gn.log.Debug("could not find branch: %s", err.Error())
 			return "", err
 		}
-		r, err := git.PlainOpen(dir)
+		r, err := git.PlainOpenWithOptions(dir, &git.PlainOpenOptions{DetectDotGit: true})
 		if err != nil {
+			gn.log.Debug("could not open repository to look for branch: %s", err.Error())
 			return "", err
 		}
 
@@ -122,6 +126,7 @@ func (gn *GN) findBranch() (string, error) {
 		if err != nil {
 			return "", err
 		}
+		gn.log.Debug("found branch: %s", branch)
 		return branch, nil
 	}
 
