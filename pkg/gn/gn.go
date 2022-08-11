@@ -131,12 +131,15 @@ func (gn *GN) findBranch() (string, error) {
 // edit opens a specific project/branch on the selected editor
 // If project is empty, uses current project
 func (gn *GN) edit(project string, branch string) error {
+	gn.log.Debug("editing project %s and branch %s", project, branch)
+
 	err := gn.createNotesPath()
 	if err != nil {
 		return err
 	}
 
 	notePath := getNotePath(gn.NotesPath, project, branch)
+	gn.log.Debug("note path: %s", notePath)
 
 	// make the directory with the notePath instead of project path because
 	// a branch name may contain slashes. In that case, we want to make the full path
@@ -145,6 +148,7 @@ func (gn *GN) edit(project string, branch string) error {
 		return err
 	}
 
+	gn.log.Debug("opening note file %s", notePath)
 	_, err = os.OpenFile(notePath, os.O_APPEND|os.O_CREATE, 0644)
 	if err != nil {
 		return err
@@ -173,6 +177,7 @@ func (gn *GN) edit(project string, branch string) error {
 func (gn *GN) createNotesPath() error {
 	_, err := os.Stat(gn.NotesPath)
 	if os.IsNotExist(err) {
+		gn.log.Debug("notes path %s does not exist", gn.NotesPath)
 		err := os.MkdirAll(gn.NotesPath, os.ModeDir|0700)
 		if err != nil {
 			if errors.Is(err, fs.ErrPermission) {
@@ -180,6 +185,7 @@ func (gn *GN) createNotesPath() error {
 			}
 			return err
 		}
+		gn.log.Debug("notes path created without errors")
 	} else if err != nil {
 		return err
 	}
