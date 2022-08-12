@@ -29,6 +29,13 @@ func TestFindProject(t *testing.T) {
 	p, err = gn.findProject()
 	assert.NoError(t, err)
 	assert.Equal(t, "test_project", p)
+
+	// assert that find project works from a inner directory
+	os.Chdir("./test")
+	gn.Project = "test_project"
+	p, err = gn.findProject()
+	assert.NoError(t, err)
+	assert.Equal(t, "test_project", p)
 }
 
 func TestFindBranch(t *testing.T) {
@@ -48,6 +55,13 @@ func TestFindBranch(t *testing.T) {
 	assert.Equal(t, os.Getenv("GN_CURRENT_BRANCH"), p)
 
 	// uses the provided branch
+	gn.Branch = "test_branch"
+	p, err = gn.findBranch()
+	assert.NoError(t, err)
+	assert.Equal(t, "test_branch", p)
+
+	// assert that find branch works from a inner directory
+	os.Chdir("./test")
 	gn.Branch = "test_branch"
 	p, err = gn.findBranch()
 	assert.NoError(t, err)
