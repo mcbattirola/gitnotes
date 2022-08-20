@@ -61,7 +61,8 @@ func TestFindBranch(t *testing.T) {
 	assert.Equal(t, "test_branch", p)
 
 	// assert that find branch works from a inner directory
-	os.Chdir("./test")
+	err = os.Chdir("./test")
+	assert.NoError(t, err)
 	gn.Branch = "test_branch"
 	p, err = gn.findBranch()
 	assert.NoError(t, err)
