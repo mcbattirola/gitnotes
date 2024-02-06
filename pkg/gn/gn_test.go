@@ -33,7 +33,7 @@ func TestFindProject(t *testing.T) {
 	// assert that find project works from a inner directory
 	err = os.Chdir("./test")
 	assert.NoError(t, err)
-	
+
 	gn.Project = "test_project"
 	p, err = gn.findProject()
 	assert.NoError(t, err)
