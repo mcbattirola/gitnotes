@@ -20,10 +20,6 @@ fmt:
 
 # install gitnotes into /usr/local/bin
 # needs sudo
-# TODO: consider adding this to `install`:
-# ssh-keyscan -t rsa github.com > ~/.ssh/known_hosts
-# ssh-keyscan -t ecdsa github.com >> ~/.ssh/known_hosts
-# (may not be necessary anymore after https://github.com/go-git/go-git/issues/411 is closed)
 .PHONY: install
 install: ./dist/gn
 	sudo cp ./dist/gn /usr/local/bin/gn
